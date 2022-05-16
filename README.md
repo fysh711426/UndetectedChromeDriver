@@ -46,8 +46,8 @@ driver.GoToUrl("https://nowsecure.nl");
 　Set chrome logLevel.  
 
 * **headless:** bool, optional, default: false  
-　Specifies to use the browser in headless mode.
-                warning: This reduces undetectability and is not fully supported.  
+　Specifies to use the browser in headless mode.  
+　warning: This reduces undetectability and is not fully supported.  
 
 * **suppressWelcome:** bool, optional, default: true  
 　First launch using the welcome page.  
