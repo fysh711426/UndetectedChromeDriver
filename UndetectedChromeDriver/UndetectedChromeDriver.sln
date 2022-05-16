@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32413.511
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndetectedChromeDriver", "UndetectedChromeDriver.csproj", "{BD55A38B-5FCA-445B-B532-1FC8F464FE91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "..\Example\Example.csproj", "{B3FA03E1-5196-4ACC-8194-D970D81710F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BD55A38B-5FCA-445B-B532-1FC8F464FE91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD55A38B-5FCA-445B-B532-1FC8F464FE91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD55A38B-5FCA-445B-B532-1FC8F464FE91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD55A38B-5FCA-445B-B532-1FC8F464FE91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3FA03E1-5196-4ACC-8194-D970D81710F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3FA03E1-5196-4ACC-8194-D970D81710F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3FA03E1-5196-4ACC-8194-D970D81710F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3FA03E1-5196-4ACC-8194-D970D81710F3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F056C46-1F2E-4621-B5D4-7D291C39A303}
+	EndGlobalSection
+EndGlobal
