@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace SeleniumCompat
 {
-    public class UndetectedChromeDriverPatcher
+    public class Patcher
     {
         private string _driverExecutablePath;
-        public UndetectedChromeDriverPatcher(
+        public Patcher(
             string driverExecutablePath = null)
         {
             _driverExecutablePath = driverExecutablePath;

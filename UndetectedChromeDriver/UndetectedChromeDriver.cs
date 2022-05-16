@@ -61,7 +61,7 @@ namespace SeleniumCompat
             bool suppressWelcome = true)
         {
             //----- Patcher ChromeDriver -----
-            var patcher = new UndetectedChromeDriverPatcher(
+            var patcher = new Patcher(
                 driverExecutablePath);
             patcher.Auto();
             //----- Patcher ChromeDriver -----
@@ -151,13 +151,10 @@ namespace SeleniumCompat
             var driver = new UndetectedChromeDriver(service, options);
             //----- Create ChromeDriver -----
 
-            //----- ConfigureHeadless -----
             driver._headless = headless;
             driver._options = options;
             driver._service = service;
             driver._browser = browser;
-            //----- ConfigureHeadless -----
-
             return driver;
         }
 
