@@ -10,7 +10,6 @@ It optimizes Selenium chromedriver to avoid being detected by anti-bot services,
 // xxx is a custom directory
 var userDataPath =@"D:\xxx\ChromeUserData";
 var driverExecutablePath =$@"D:\xxx\chromedriver.exe";
-var browserExecutablePath = @"C:\ProgramFiles (x86\Google\Chrome\Application\chrome.exe";
 
 // customized chrome options
 var options = new ChromeOptions();
@@ -22,8 +21,7 @@ options.AddArgumen("--disable-dev-shm-usage");
 using var driver = UndetectedChromeDriverCreate(
     options: options,
     userDataDir: userDataPath,
-    driverExecutablePath: driverExecutablePath,
-    browserExecutablePath: browserExecutablePath);
+    driverExecutablePath: driverExecutablePath);
 
 driver.GoToUrl("https://nowsecure.nl");
 ```  
@@ -39,8 +37,9 @@ driver.GoToUrl("https://nowsecure.nl");
 * **driverExecutablePath:** str, required  
 　Set chrome driver executable file path. (patches new binary)
 
-* **browserExecutablePath:** str, required  
+* **browserExecutablePath:** str, optional, default: null  
 　Set browser executable file path.  
+　default using $PATH to execute.  
 
 * **logLevel:** int, optional, default: 0  
 　Set chrome logLevel.  
@@ -53,5 +52,3 @@ driver.GoToUrl("https://nowsecure.nl");
 　First launch using the welcome page.  
 
 ---  
-
-This repo is not yet perfect, only some basic functions have been implemented. If you have any questions, please let me know.  

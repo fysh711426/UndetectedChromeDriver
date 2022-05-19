@@ -37,8 +37,9 @@ namespace SeleniumCompat
             driverExecutablePath: str, required
                 Set chrome driver executable file path. (patches new binary)
 
-            browserExecutablePath: str, required
+            browserExecutablePath: optional, default: null
                 Set browser executable file path.
+                default using $PATH to execute.
 
             logLevel: int, optional, default: 0
                 Set chrome logLevel.
@@ -93,7 +94,11 @@ namespace SeleniumCompat
 
             //----- BinaryLocation -----
             if (browserExecutablePath == null)
-                throw new Exception("browserExecutablePath is required.");
+            {
+                browserExecutablePath = findChromeExecutable();
+                if (browserExecutablePath == null)
+                    throw new Exception("Not found chrome.exe.");
+            }
             options.BinaryLocation = browserExecutablePath;
             //----- BinaryLocation -----
 
@@ -245,6 +250,32 @@ namespace SeleniumCompat
                                             &&delete window[p]&&console.log('removed',p))
                      "
                 });
+        }
+
+        private static string findChromeExecutable()
+        {
+            var candidates = new List<string>();
+
+            foreach (var item in new[] {
+                "PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"
+            })
+            {
+                foreach (var subitem in new[] {
+                    @"Google\Chrome\Application",
+                    @"Google\Chrome Beta\Application",
+                    @"Google\Chrome Canary\Application"
+                })
+                {
+                    var variable = Environment.GetEnvironmentVariable(item);
+                    if (variable != null)
+                        candidates.Add(Path.Combine(variable, subitem, "chrome.exe"));
+                }
+            }
+
+            foreach (var candidate in candidates)
+                if (File.Exists(candidate))
+                    return candidate;
+            return null;
         }
 
         private static int findFreePort()
