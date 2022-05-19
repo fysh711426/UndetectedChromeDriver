@@ -50,7 +50,7 @@ driver.GoToUrl("https://nowsecure.nl");
 * **suppressWelcome:** bool, optional, default: true  
 　First launch using the welcome page.  
 
-* **prefs:** Dictionary<string, object>, optional, default: null
+* **prefs:** Dictionary<string, object>, optional, default: null  
 　Prefs is meant to store lightweight state that reflects user preferences.  
 　dict value can be value or json.
 
