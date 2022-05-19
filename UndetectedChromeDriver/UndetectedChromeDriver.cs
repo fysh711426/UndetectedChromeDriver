@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Chrome;
+﻿using Newtonsoft.Json;
+using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -36,8 +37,7 @@ namespace SeleniumCompat
 
             userDataDir: str, optional, default: null (creates temp profile)
                 Set chrome user profile directory.
-                if userDataDir is temp profile, 
-                it will be automatically deleted after exit.
+                if userDataDir is temp profile, it will be automatically deleted after exit.
 
             driverExecutablePath: str, required
                 Set chrome driver executable file path. (patches new binary)
@@ -55,6 +55,10 @@ namespace SeleniumCompat
 
             suppressWelcome: bool, optional, default: true
                 First launch using the welcome page.
+
+            prefs: Dictionary<string, object>, optional, default: null
+                Prefs is meant to store lightweight state that reflects user preferences.
+                dict value can be value or json.  
         */
 
         public static UndetectedChromeDriver Create(
@@ -64,7 +68,8 @@ namespace SeleniumCompat
             string browserExecutablePath = null,
             int logLevel = 0,
             bool headless = false,
-            bool suppressWelcome = true)
+            bool suppressWelcome = true,
+            Dictionary<string, object> prefs = null)
         {
             //----- Patcher ChromeDriver -----
             var patcher = new Patcher(
@@ -131,6 +136,11 @@ namespace SeleniumCompat
             //----- LogLevel -----
             options.AddArguments($"--log-level={logLevel}");
             //----- LogLevel -----
+
+            //----- Prefs -----
+            if (prefs != null)
+                handlePrefs(userDataDir, prefs);
+            //----- Prefs -----
 
             //----- Fix exit_type -----
             try
@@ -332,6 +342,60 @@ namespace SeleniumCompat
                         Thread.Sleep(100);
                     }
                 }
+            }
+        }
+
+        private static Dictionary<string, object> undotKey(string key, object value)
+        {
+            if (key.Contains("."))
+            {
+                var split = key.Split('.', 2);
+                key = split[0];
+                var rest = split[1];
+                value = undotKey(rest, value);
+            }
+            return new Dictionary<string, object> { [key] = value };
+        }
+
+        private static void handlePrefs(string userDataDir, Dictionary<string, object> prefs)
+        {
+            var defaultPath = Path.Combine(userDataDir, "Default");
+            if (!Directory.Exists(defaultPath))
+                Directory.CreateDirectory(defaultPath);
+
+            var undotPrefs = new Dictionary<string, object>();
+            foreach(var pair in prefs)
+            {
+                var val = pair.Value;
+                try
+                {
+                    if (pair.Value is string)
+                        val = Json.DeserializeData(pair.Value as string);
+                }
+                catch (Exception) { }
+                undotPrefs.Update(undotKey(pair.Key, val));
+            }
+
+            var prefsFile = Path.Combine(defaultPath, "Preferences");
+            if (File.Exists(prefsFile))
+            {
+                using (var fs = File.Open(prefsFile, FileMode.Open, FileAccess.Read))
+                using (var reader = new StreamReader(fs, Encoding.Latin1))
+                {
+                    try
+                    {
+                        var json = reader.ReadToEnd();
+                        undotPrefs = Json.DeserializeData(json).Update(undotPrefs);
+                    }
+                    catch (Exception) { }
+                }
+            }
+
+            using (var fs = File.Open(prefsFile, FileMode.OpenOrCreate, FileAccess.Write))
+            using (var writer = new StreamWriter(fs, Encoding.Latin1))
+            {
+                var json = JsonConvert.SerializeObject(undotPrefs);
+                writer.Write(json);
             }
         }
     }
