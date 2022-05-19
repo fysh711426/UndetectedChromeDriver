@@ -15,10 +15,10 @@ var driverExecutablePath =$@"D:\xxx\chromedriver.exe";
 var options = new ChromeOptions();
 options.AddArgument("--mute-audio");
 options.AddArgument("--disable-gpu");
-options.AddArgumen("--disable-dev-shm-usage");
+options.AddArgument("--disable-dev-shm-usage");
 
 // using keyword is required to dispose the chrome driver
-using var driver = UndetectedChromeDriverCreate(
+using var driver = UndetectedChromeDriver.Create(
     options: options,
     userDataDir: userDataPath,
     driverExecutablePath: driverExecutablePath);
