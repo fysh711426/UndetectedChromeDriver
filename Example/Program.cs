@@ -10,7 +10,6 @@ namespace Example
         public static void Main(string[] args)
         {
             // xxx is a custom directory
-            var userDataPath = @"D:\xxx\ChromeUserData";
             var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
             // customized chrome options
@@ -22,7 +21,6 @@ namespace Example
             // using keyword is required to dispose the chrome driver
             using var driver = UndetectedChromeDriver.Create(
                 options: options,
-                userDataDir: userDataPath,
                 driverExecutablePath: driverExecutablePath);
 
             driver.GoToUrl("https://nowsecure.nl");

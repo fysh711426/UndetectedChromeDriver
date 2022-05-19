@@ -8,7 +8,6 @@ It optimizes Selenium chromedriver to avoid being detected by anti-bot services,
 
 ```C#
 // xxx is a custom directory
-var userDataPath =@"D:\xxx\ChromeUserData";
 var driverExecutablePath =$@"D:\xxx\chromedriver.exe";
 
 // customized chrome options
@@ -20,7 +19,6 @@ options.AddArgument("--disable-dev-shm-usage");
 // using keyword is required to dispose the chrome driver
 using var driver = UndetectedChromeDriver.Create(
     options: options,
-    userDataDir: userDataPath,
     driverExecutablePath: driverExecutablePath);
 
 driver.GoToUrl("https://nowsecure.nl");
@@ -28,11 +26,13 @@ driver.GoToUrl("https://nowsecure.nl");
 
 ### parameters  
 
-* **options:** ChromeOptions, required  
+* **options:** ChromeOptions, optional, default: null  
 　Used to define browser behavior.
 
-* **userDataDir:** str, required  
-　Set chrome user profile directory.
+* **userDataDir:** str, optional, default: null (creates temp profile)    
+　Set chrome user profile directory.  
+　if userDataDir is temp profile,  
+　it will be automatically deleted after exit.  
 
 * **driverExecutablePath:** str, required  
 　Set chrome driver executable file path. (patches new binary)

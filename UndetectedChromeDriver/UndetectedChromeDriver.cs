@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SeleniumCompat
 {
@@ -21,6 +22,8 @@ namespace SeleniumCompat
         private ChromeOptions _options = null;
         private ChromeDriverService _service = null;
         private Process _browser = null;
+        private bool _keepUserDataDir = true;
+        private string _userDataDir = null;
 
         /*
             Creates a new instance of the chrome driver.
@@ -28,11 +31,13 @@ namespace SeleniumCompat
             Parameters
             ----------
 
-            options: ChromeOptions, required 
+            options: ChromeOptions, optional, default: null 
                 Used to define browser behavior.
 
-            userDataDir: str, required
+            userDataDir: str, optional, default: null (creates temp profile)
                 Set chrome user profile directory.
+                if userDataDir is temp profile, 
+                it will be automatically deleted after exit.
 
             driverExecutablePath: str, required
                 Set chrome driver executable file path. (patches new binary)
@@ -82,8 +87,14 @@ namespace SeleniumCompat
             //----- DebugPort -----
 
             //----- UserDataDir -----
+            var keepUserDataDir = true;
             if (userDataDir == null)
-                throw new Exception("UserDataDir is required.");
+            {
+                keepUserDataDir = false;
+                userDataDir = Path.Combine(
+                    Path.GetTempPath(), Guid.NewGuid().ToString());
+                Directory.CreateDirectory(userDataDir);
+            }
             options.AddArgument($"--user-data-dir={userDataDir}");
             //----- UserDataDir -----
 
@@ -160,6 +171,8 @@ namespace SeleniumCompat
             driver._options = options;
             driver._service = service;
             driver._browser = browser;
+            driver._keepUserDataDir = keepUserDataDir;
+            driver._userDataDir = userDataDir;
             return driver;
         }
 
@@ -304,6 +317,22 @@ namespace SeleniumCompat
                 _browser.Kill();
             }
             catch (Exception) { }
+
+            if (!_keepUserDataDir)
+            {
+                for (var i = 0; i < 5; i++)
+                {
+                    try
+                    {
+                        Directory.Delete(_userDataDir, true);
+                        break;
+                    }
+                    catch (Exception)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
+            }
         }
     }
 }
