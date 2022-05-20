@@ -98,7 +98,6 @@ namespace SeleniumCompat
                 keepUserDataDir = false;
                 userDataDir = Path.Combine(
                     Path.GetTempPath(), Guid.NewGuid().ToString());
-                Directory.CreateDirectory(userDataDir);
             }
             options.AddArgument($"--user-data-dir={userDataDir}");
             //----- UserDataDir -----
@@ -145,7 +144,7 @@ namespace SeleniumCompat
             //----- Fix exit_type -----
             try
             {
-                var filePath = $@"{userDataDir}\Default\Preferences";
+                var filePath = Path.Combine(userDataDir, @"\Default\Preferences");
                 var json = File.ReadAllText(filePath, Encoding.Latin1);
                 var regex = new Regex(@"(?<=exit_type"":)(.*?)(?=,)");
                 var exitType = regex.Match(json).Value;
