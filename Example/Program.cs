@@ -59,7 +59,7 @@ namespace Example
             Console.ReadLine();
         }
 
-        public static void MultipleBrowserExample()
+        public static void MultipleInstanceExample()
         {
             // xxx is a custom directory
             var driverExecutablePath = $@"D:\xxx\chromedriver.exe";

@@ -83,3 +83,26 @@ using var driver = UndetectedChromeDriver.Create(
 
 driver.GoToUrl("https://nowsecure.nl");
 ```  
+
+### multiple instance example  
+
+```C#
+// xxx is a custom directory
+var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
+
+// ChromeOptions must be independent
+var options1 = new ChromeOptions();
+var options2 = new ChromeOptions();
+
+using var driver1 = UndetectedChromeDriver.Create(
+    options: options1,
+    driverExecutablePath: driverExecutablePath,
+    userDataDir: @"D:\xxx\ChromeUserData1");
+driver1.GoToUrl("https://nowsecure.nl");
+
+using var driver2 = UndetectedChromeDriver.Create(
+    options: options2,
+    driverExecutablePath: driverExecutablePath,
+    userDataDir: @"D:\xxx\ChromeUserData2");
+driver2.GoToUrl("https://nowsecure.nl");
+```
