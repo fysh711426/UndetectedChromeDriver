@@ -144,7 +144,7 @@ namespace SeleniumCompat
             //----- Fix exit_type -----
             try
             {
-                var filePath = Path.Combine(userDataDir, @"\Default\Preferences");
+                var filePath = Path.Combine(userDataDir, @"Default\Preferences");
                 var json = File.ReadAllText(filePath, Encoding.Latin1);
                 var regex = new Regex(@"(?<=exit_type"":)(.*?)(?=,)");
                 var exitType = regex.Match(json).Value;
@@ -344,36 +344,13 @@ namespace SeleniumCompat
             }
         }
 
-        private static Dictionary<string, object> undotKey(string key, object value)
-        {
-            if (key.Contains("."))
-            {
-                var split = key.Split('.', 2);
-                key = split[0];
-                var rest = split[1];
-                value = undotKey(rest, value);
-            }
-            return new Dictionary<string, object> { [key] = value };
-        }
-
         private static void handlePrefs(string userDataDir, Dictionary<string, object> prefs)
         {
             var defaultPath = Path.Combine(userDataDir, "Default");
             if (!Directory.Exists(defaultPath))
                 Directory.CreateDirectory(defaultPath);
 
-            var undotPrefs = new Dictionary<string, object>();
-            foreach(var pair in prefs)
-            {
-                var val = pair.Value;
-                try
-                {
-                    if (pair.Value is string)
-                        val = Json.DeserializeData(pair.Value as string);
-                }
-                catch (Exception) { }
-                undotPrefs.Update(undotKey(pair.Key, val));
-            }
+            var newPrefs = new Dictionary<string, object>();
 
             var prefsFile = Path.Combine(defaultPath, "Preferences");
             if (File.Exists(prefsFile))
@@ -384,16 +361,45 @@ namespace SeleniumCompat
                     try
                     {
                         var json = reader.ReadToEnd();
-                        undotPrefs = Json.DeserializeData(json).Update(undotPrefs);
+                        newPrefs = Json.DeserializeData(json);
                     }
                     catch (Exception) { }
                 }
             }
 
+            // merge key value into dict
+            void undotMerge(string key, object value, 
+                Dictionary<string, object> dict)
+            {
+                if (key.Contains("."))
+                {
+                    var split = key.Split('.', 2);
+                    var k1 = split[0];
+                    var k2 = split[1];
+                    if (!dict.ContainsKey(k1))
+                        dict[k1] = new Dictionary<string, object>();
+                    undotMerge(k2, value, dict[k1] as Dictionary<string, object>);
+                    return;
+                }
+                dict[key] = value;
+            }
+
+            try
+            {
+                foreach (var pair in prefs)
+                {
+                    undotMerge(pair.Key, pair.Value, newPrefs);
+                }
+            }
+            catch(Exception)
+            {
+                throw new Exception("Prefs merge faild.");
+            }
+
             using (var fs = File.Open(prefsFile, FileMode.OpenOrCreate, FileAccess.Write))
             using (var writer = new StreamWriter(fs, Encoding.Latin1))
             {
-                var json = JsonConvert.SerializeObject(undotPrefs);
+                var json = JsonConvert.SerializeObject(newPrefs);
                 writer.Write(json);
             }
         }

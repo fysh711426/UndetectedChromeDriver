@@ -8,29 +8,6 @@ using System.Threading.Tasks;
 
 namespace SeleniumCompat
 {
-    public static class Extensions
-    {
-        public static Dictionary<string, object> Update(
-            this Dictionary<string, object> dict1, Dictionary<string, object> dict2)
-        {
-            foreach (var pair in dict2)
-            {
-                if (pair.Value is Dictionary<string, object>)
-                {
-                    if (dict1.ContainsKey(pair.Key) &&
-                        dict1[pair.Key] is Dictionary<string, object>)
-                    {
-                        dict1[pair.Key] = (dict1[pair.Key] as Dictionary<string, object>)
-                            .Update((pair.Value as Dictionary<string, object>));
-                        continue;
-                    }
-                }
-                dict1[pair.Key] = pair.Value;
-            }
-            return dict1;
-        }
-    }
-
     public static class Json
     {
         public static Dictionary<string, object> DeserializeData(string data)
