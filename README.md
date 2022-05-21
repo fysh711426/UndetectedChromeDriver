@@ -41,7 +41,8 @@ driver.GoToUrl("https://nowsecure.nl");
 
 * **userDataDir:** str, optional, default: null    
 　Set chrome user profile directory.  
-　creates a temporary profile if userDataDir is null and automatically deletes it after exiting.  
+　creates a temporary profile if userDataDir is null,  
+　and automatically deletes it after exiting.  
 
 * **driverExecutablePath:** str, required  
 　Set chrome driver executable file path. (patches new binary)

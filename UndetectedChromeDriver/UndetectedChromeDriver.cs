@@ -38,7 +38,8 @@ namespace SeleniumUndetectedChromeDriver
 
             userDataDir: str, optional, default: null
                 Set chrome user profile directory.
-                creates a temporary profile if userDataDir is null and automatically deletes it after exiting.
+                creates a temporary profile if userDataDir is null,
+                and automatically deletes it after exiting.
 
             driverExecutablePath: str, required
                 Set chrome driver executable file path. (patches new binary)
@@ -67,7 +68,8 @@ namespace SeleniumUndetectedChromeDriver
         /// </summary>
         /// <param name="options">Used to define browser behavior.</param>
         /// <param name="userDataDir">Set chrome user profile directory.
-        /// creates a temporary profile if userDataDir is null and automatically deletes it after exiting.</param>
+        /// creates a temporary profile if userDataDir is null,
+        /// and automatically deletes it after exiting.</param>
         /// <param name="driverExecutablePath">Set chrome driver executable file path. (patches new binary)</param>
         /// <param name="browserExecutablePath">Set browser executable file path.
         /// default using $PATH to execute.</param>
