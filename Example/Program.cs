@@ -64,20 +64,24 @@ namespace Example
             // xxx is a custom directory
             var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
-            // ChromeOptions must be independent
+            // options must be independent
             var options1 = new ChromeOptions();
             var options2 = new ChromeOptions();
+
+            // userDataDir must be independent
+            var userDataDir1 = @"D:\xxx\ChromeUserData1";
+            var userDataDir2 = @"D:\xxx\ChromeUserData2";
 
             using var driver1 = UndetectedChromeDriver.Create(
                 options: options1,
                 driverExecutablePath: driverExecutablePath,
-                userDataDir: @"D:\xxx\ChromeUserData1");
+                userDataDir: userDataDir1);
             driver1.GoToUrl("https://nowsecure.nl");
 
             using var driver2 = UndetectedChromeDriver.Create(
                 options: options2,
                 driverExecutablePath: driverExecutablePath,
-                userDataDir: @"D:\xxx\ChromeUserData2");
+                userDataDir: userDataDir2);
             driver2.GoToUrl("https://nowsecure.nl");
 
             Console.ReadLine();
