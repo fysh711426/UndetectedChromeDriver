@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SeleniumCompat
+namespace SeleniumUndetectedChromeDriver
 {
     public class Patcher
     {
@@ -29,7 +29,7 @@ namespace SeleniumCompat
 
             using (var fs = new FileStream(_driverExecutablePath,
                 FileMode.Open, FileAccess.Read))
-            using (var reader = new StreamReader(fs, Encoding.Latin1))
+            using (var reader = new StreamReader(fs, Encoding.GetEncoding("ISO-8859-1")))
             {
                 while (true)
                 {
@@ -67,7 +67,8 @@ namespace SeleniumCompat
                     if (check.ToString() == "cdc_")
                     {
                         fs.Seek(-4, SeekOrigin.Current);
-                        fs.Write(Encoding.Latin1.GetBytes(replacement));
+                        var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(replacement);
+                        fs.Write(bytes, 0, bytes.Length);
                         linect++;
                     }
                 }
@@ -82,7 +83,7 @@ namespace SeleniumCompat
             var cdc = Enumerable.Repeat(chars, 26)
                 .Select(s => s[random.Next(s.Length)]).ToArray();
             for (var i = 4; i <= 6; i++)
-                cdc[^i] = char.ToUpper(cdc[^i]);
+                cdc[cdc.Length - i] = char.ToUpper(cdc[cdc.Length - i]);
             cdc[2] = cdc[0];
             cdc[3] = '_';
             return new string(cdc);

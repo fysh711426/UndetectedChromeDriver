@@ -13,7 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace SeleniumCompat
+namespace SeleniumUndetectedChromeDriver
 {
     public class UndetectedChromeDriver : ChromeDriver
     {
@@ -36,14 +36,14 @@ namespace SeleniumCompat
             options: ChromeOptions, optional, default: null 
                 Used to define browser behavior.
 
-            userDataDir: str, optional, default: null (creates temp profile)
+            userDataDir: str, optional, default: null
                 Set chrome user profile directory.
-                if userDataDir is temp profile, it will be automatically deleted after exit.
+                creates a temporary profile if userDataDir is null and automatically deletes it after exiting.
 
             driverExecutablePath: str, required
                 Set chrome driver executable file path. (patches new binary)
 
-            browserExecutablePath: optional, default: null
+            browserExecutablePath: str, optional, default: null
                 Set browser executable file path.
                 default using $PATH to execute.
 
@@ -59,9 +59,25 @@ namespace SeleniumCompat
 
             prefs: Dictionary<string, object>, optional, default: null
                 Prefs is meant to store lightweight state that reflects user preferences.
-                dict value can be value or json.  
+                dict value can be value or json.
         */
 
+        /// <summary>
+        /// Creates a new instance of the chrome driver.
+        /// </summary>
+        /// <param name="options">Used to define browser behavior.</param>
+        /// <param name="userDataDir">Set chrome user profile directory.
+        /// creates a temporary profile if userDataDir is null and automatically deletes it after exiting.</param>
+        /// <param name="driverExecutablePath">Set chrome driver executable file path. (patches new binary)</param>
+        /// <param name="browserExecutablePath">Set browser executable file path.
+        /// default using $PATH to execute.</param>
+        /// <param name="logLevel">Set chrome logLevel.</param>
+        /// <param name="headless">Specifies to use the browser in headless mode.
+        /// warning: This reduces undetectability and is not fully supported.</param>
+        /// <param name="suppressWelcome">First launch using the welcome page.</param>
+        /// <param name="prefs">Prefs is meant to store lightweight state that reflects user preferences.
+        /// dict value can be value or json.</param>
+        /// <returns>UndetectedChromeDriver</returns>
         public static UndetectedChromeDriver Create(
             ChromeOptions options = null,
             string userDataDir = null,
@@ -146,13 +162,15 @@ namespace SeleniumCompat
             try
             {
                 var filePath = Path.Combine(userDataDir, @"Default\Preferences");
-                var json = File.ReadAllText(filePath, Encoding.Latin1);
+                var json = File.ReadAllText(filePath, 
+                    Encoding.GetEncoding("ISO-8859-1"));
                 var regex = new Regex(@"(?<=exit_type"":)(.*?)(?=,)");
                 var exitType = regex.Match(json).Value;
                 if (exitType != "" && exitType != "null")
                 {
                     json = regex.Replace(json, "null");
-                    File.WriteAllText(filePath, json, Encoding.Latin1);
+                    File.WriteAllText(filePath, json, 
+                        Encoding.GetEncoding("ISO-8859-1"));
                 }
             }
             catch (Exception) { }
@@ -357,7 +375,7 @@ namespace SeleniumCompat
             if (File.Exists(prefsFile))
             {
                 using (var fs = File.Open(prefsFile, FileMode.Open, FileAccess.Read))
-                using (var reader = new StreamReader(fs, Encoding.Latin1))
+                using (var reader = new StreamReader(fs, Encoding.GetEncoding("ISO-8859-1")))
                 {
                     try
                     {
@@ -374,7 +392,7 @@ namespace SeleniumCompat
             {
                 if (key.Contains("."))
                 {
-                    var split = key.Split('.', 2);
+                    var split = key.Split(new char[] { '.' }, 2);
                     var k1 = split[0];
                     var k2 = split[1];
                     if (!dict.ContainsKey(k1))
@@ -398,7 +416,7 @@ namespace SeleniumCompat
             }
 
             using (var fs = File.Open(prefsFile, FileMode.OpenOrCreate, FileAccess.Write))
-            using (var writer = new StreamWriter(fs, Encoding.Latin1))
+            using (var writer = new StreamWriter(fs, Encoding.GetEncoding("ISO-8859-1")))
             {
                 var json = JsonConvert.SerializeObject(newPrefs);
                 writer.Write(json);

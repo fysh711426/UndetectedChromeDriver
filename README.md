@@ -1,10 +1,20 @@
 # UndetectedChromeDriver  
 
-This repo is C# implementation of undetected_chromedriver.  
+This repo is C# implementation of [undetected_chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver).  
 
-It optimizes Selenium chromedriver to avoid being detected by anti-bot services, the program will patch the specified chromedriver binary.  
+It optimizes Selenium chromedriver to avoid being detected by anti-bot services.  
+
+### nuget install  
+
+```
+PM> Install-Package Selenium.UndetectedChromeDriver
+```
 
 ### example  
+
+```C#
+using SeleniumUndetectedChromeDriver;
+```
 
 ```C#
 // xxx is a custom directory
@@ -29,9 +39,9 @@ driver.GoToUrl("https://nowsecure.nl");
 * **options:** ChromeOptions, optional, default: null  
 　Used to define browser behavior.
 
-* **userDataDir:** str, optional, default: null (creates temp profile)    
+* **userDataDir:** str, optional, default: null    
 　Set chrome user profile directory.  
-　if userDataDir is temp profile, it will be automatically deleted after exit.  
+　creates a temporary profile if userDataDir is null and automatically deletes it after exiting.  
 
 * **driverExecutablePath:** str, required  
 　Set chrome driver executable file path. (patches new binary)

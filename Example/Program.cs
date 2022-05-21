@@ -1,5 +1,5 @@
 ﻿using OpenQA.Selenium.Chrome;
-using SeleniumCompat;
+using SeleniumUndetectedChromeDriver;
 using System;
 using System.Collections.Generic;
 using System.IO;
