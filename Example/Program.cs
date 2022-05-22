@@ -43,7 +43,7 @@ namespace Example
                 ["profile.default_content_setting_values"] =
                     Json.DeserializeData(@"
                         {
-                            'notifications': 2
+                            'notifications': 1
                         }
                     ")
             };

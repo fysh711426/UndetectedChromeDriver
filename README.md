@@ -10,11 +10,13 @@ It optimizes Selenium chromedriver to avoid being detected by anti-bot services.
 PM> Install-Package Selenium.UndetectedChromeDriver
 ```
 
-### example  
+### namespace  
 
 ```C#
 using SeleniumUndetectedChromeDriver;
 ```
+
+### example  
 
 ```C#
 // xxx is a custom directory
@@ -81,7 +83,7 @@ var prefs = new Dictionary<string, object>
     ["profile.default_content_setting_values"] =
         Json.DeserializeData(@"
             {
-                'notifications': 2
+                'notifications': 1
             }
         ")
 };
