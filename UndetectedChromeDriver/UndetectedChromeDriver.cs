@@ -179,8 +179,11 @@ namespace SeleniumUndetectedChromeDriver
             //----- Fix exit_type -----
 
             //----- Start Process -----
-            var info = new ProcessStartInfo(options.BinaryLocation,
-                string.Join(" ", options.Arguments));
+            var args = options.Arguments
+                .Select(it => it.Trim())
+                .Aggregate("", (r, it) => r + " " +
+                    (it.Contains(" ") ? $"\"{it}\"" : it));
+            var info = new ProcessStartInfo(options.BinaryLocation, args);
             info.UseShellExecute = false;
             info.RedirectStandardInput = true;
             info.RedirectStandardOutput = true;
