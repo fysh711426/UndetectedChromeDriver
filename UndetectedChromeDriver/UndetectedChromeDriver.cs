@@ -165,7 +165,7 @@ namespace SeleniumUndetectedChromeDriver
             //----- Fix exit_type -----
             try
             {
-                var filePath = Path.Combine(userDataDir, @"Default\Preferences");
+                var filePath = Path.Combine(userDataDir, @"Default/Preferences");
                 var json = File.ReadAllText(filePath, 
                     Encoding.GetEncoding("ISO-8859-1"));
                 var regex = new Regex(@"(?<=exit_type"":)(.*?)(?=,)");
@@ -307,7 +307,7 @@ namespace SeleniumUndetectedChromeDriver
             result = findChromeExecutable();
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                result = findChromeExecutableWindows();
+                result = findChromeExecutable();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 result = findChromeExecutableLinux();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -317,32 +317,6 @@ namespace SeleniumUndetectedChromeDriver
         }
 
         private static string findChromeExecutable()
-        {
-            var candidates = new List<string>();
-
-            foreach (var item in new[] {
-                "PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"
-            })
-            {
-                foreach (var subitem in new[] {
-                    @"Google\Chrome\Application",
-                    @"Google\Chrome Beta\Application",
-                    @"Google\Chrome Canary\Application"
-                })
-                {
-                    var variable = Environment.GetEnvironmentVariable(item);
-                    if (variable != null)
-                        candidates.Add(Path.Combine(variable, subitem, "chrome.exe"));
-                }
-            }
-
-            foreach (var candidate in candidates)
-                if (File.Exists(candidate))
-                    return candidate;
-            return null;
-        }
-
-        private static string findChromeExecutableWindows()
         {
             var candidates = new List<string>();
 
