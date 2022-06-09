@@ -316,7 +316,6 @@ namespace SeleniumUndetectedChromeDriver
             return result;
         }
 
-#if (NET48 || NET47 || NET46 || NET45)
         private static string findChromeExecutable()
         {
             var candidates = new List<string>();
@@ -342,7 +341,7 @@ namespace SeleniumUndetectedChromeDriver
                     return candidate;
             return null;
         }
-#else
+
         private static string findChromeExecutableWindows()
         {
             var candidates = new List<string>();
@@ -425,7 +424,6 @@ namespace SeleniumUndetectedChromeDriver
                     return candidate;
             return null;
         }
-#endif
 
         private static int findFreePort()
         {
