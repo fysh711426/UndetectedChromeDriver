@@ -79,6 +79,7 @@ namespace SeleniumUndetectedChromeDriver
         /// <param name="headless">Specifies to use the browser in headless mode.
         /// warning: This reduces undetectability and is not fully supported.</param>
         /// <param name="suppressWelcome">First launch using the welcome page.</param>
+        /// <param name="hideCommandPromptWindow">Hide selenium command prompt window.</param>
         /// <param name="prefs">Prefs is meant to store lightweight state that reflects user preferences.
         /// dict value can be value or json.</param>
         /// <returns>UndetectedChromeDriver</returns>
@@ -90,6 +91,7 @@ namespace SeleniumUndetectedChromeDriver
             int logLevel = 0,
             bool headless = false,
             bool suppressWelcome = true,
+            bool hideCommandPromptWindow = false,
             Dictionary<string, object> prefs = null)
         {
             //----- Patcher ChromeDriver -----
@@ -199,6 +201,7 @@ namespace SeleniumUndetectedChromeDriver
             var service = ChromeDriverService.CreateDefaultService(
                 Path.GetDirectoryName(driverExecutablePath),
                 Path.GetFileName(driverExecutablePath));
+            service.HideCommandPromptWindow = hideCommandPromptWindow;
             var driver = new UndetectedChromeDriver(service, options);
             //----- Create ChromeDriver -----
 

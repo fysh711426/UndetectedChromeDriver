@@ -63,6 +63,9 @@ driver.GoToUrl("https://nowsecure.nl");
 * **suppressWelcome:** bool, optional, default: true  
 　First launch using the welcome page.  
 
+* **hideCommandPromptWindow:** bool, optional, default: false  
+Hide selenium command prompt window.
+
 * **prefs:** Dictionary<string, object>, optional, default: null  
 　Prefs is meant to store lightweight state that reflects user preferences.  
 　dict value can be value or json.
@@ -122,4 +125,45 @@ using var driver2 = UndetectedChromeDriver.Create(
     driverExecutablePath: driverExecutablePath,
     userDataDir: userDataDir2);
 driver2.GoToUrl("https://nowsecure.nl");
+```
+
+### wpf example  
+
+```C#
+public partial class MainWindow : Window
+{
+    private UndetectedChromeDriver _driver;
+    public MainWindow()
+    {
+        InitializeComponent();
+        this.Loaded += MainWindow_Loaded;
+        this.Closed += MainWindow_Closed;
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
+
+        var options = new ChromeOptions();
+        options.AddArgument("--mute-audio");
+        options.AddArgument("--disable-gpu");
+        options.AddArgument("--disable-dev-shm-usage");
+
+        _driver = UndetectedChromeDriver.Create(
+            options: options,
+            driverExecutablePath: driverExecutablePath,
+            // hide selenium command prompt window  
+            hideCommandPromptWindow: true);
+    }
+
+    private void MainWindow_Closed(object? sender, EventArgs e)
+    {
+        _driver.Dispose();
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        _driver.GoToUrl("https://nowsecure.nl");
+    }
+}
 ```
