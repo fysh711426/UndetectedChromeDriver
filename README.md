@@ -167,3 +167,50 @@ public partial class MainWindow : Window
     }
 }
 ```
+
+### chrome argument example  
+
+```C#
+// Set language.
+options.AddArguments("--lang=en");
+```
+
+```C#
+// Set screen.
+options.AddArguments("--window-size=1920,1080");
+options.AddArguments("--start-maximized");
+```
+
+```C#
+// Set timezone.
+driver.ExecuteCdpCommand(
+    "Emulation.setTimezoneOverride",
+    new Dictionary<string, object>
+    {
+        ["timezoneId"] = "America/New_York"
+    });
+```
+
+```C#
+// Set enable geolocation.
+var prefs = new Dictionary<string, object>
+{
+    ["profile.default_content_setting_values.geolocation"] = 1
+};
+
+using var driver = UndetectedChromeDriverCreate(
+    ...
+    prefs: prefs);
+```
+
+```C#
+// Set geolocation.
+driver.ExecuteCdpCommand(
+    "Emulation.setGeolocationOverride",
+    new Dictionary<string, object>
+    {
+        ["latitude"] = 42.1408845,
+        ["longitude"] = -72.5033907,
+        ["accuracy"] = 100
+    });
+```

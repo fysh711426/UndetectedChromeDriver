@@ -127,7 +127,8 @@ namespace SeleniumUndetectedChromeDriver
 
             //----- Language -----
             var language = CultureInfo.CurrentCulture.Name;
-            options.AddArgument($"--lang={language}");
+            if(!options.Arguments.Any(it => it.Contains("--lang")))
+                options.AddArgument($"--lang={language}");
             //----- Language -----
 
             //----- BinaryLocation -----
