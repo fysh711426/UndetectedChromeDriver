@@ -182,17 +182,7 @@ options.AddArguments("--start-maximized");
 ```
 
 ```C#
-// Set timezone.
-driver.ExecuteCdpCommand(
-    "Emulation.setTimezoneOverride",
-    new Dictionary<string, object>
-    {
-        ["timezoneId"] = "America/New_York"
-    });
-```
-
-```C#
-// Set enable geolocation.
+// Enable geolocation.
 var prefs = new Dictionary<string, object>
 {
     ["profile.default_content_setting_values.geolocation"] = 1
@@ -213,4 +203,33 @@ driver.ExecuteCdpCommand(
         ["longitude"] = -72.5033907,
         ["accuracy"] = 100
     });
+```
+
+```C#
+// Set timezone.
+driver.ExecuteCdpCommand(
+    "Emulation.setTimezoneOverride",
+    new Dictionary<string, object>
+    {
+        ["timezoneId"] = "America/New_York"
+    });
+```
+
+```C#
+// Disable WebGL.
+options.AddArgument("--disable-gpu");
+options.AddArgument("--disable-software-rasterizer");
+```
+
+```C#
+// Disable WebRTC.
+var prefs = new Dictionary<string, object>
+{
+    ["webrtc.ip_handling_policy"] = "disable_non_proxied_udp",
+    ["webrtc.multiple_routes_enabled"] = false,
+    ["webrtc.nonproxied_udp_enabled"] = false
+};
+using var driver = UndetectedChromeDriverCreate(
+    ...
+    prefs: prefs);
 ```
