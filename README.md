@@ -20,7 +20,7 @@ using SeleniumUndetectedChromeDriver;
 
 ```C#
 // xxx is a custom directory
-var driverExecutablePath =$@"D:\xxx\chromedriver.exe";
+var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
 // customized chrome options
 var options = new ChromeOptions();
@@ -76,7 +76,7 @@ Hide selenium command prompt window.
 
 ```C#
 // xxx is a custom directory
-var driverExecutablePath =$@"D:\xxx\chromedriver.exe";
+var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
 // dict value can be value or json
 var prefs = new Dictionary<string, object>
