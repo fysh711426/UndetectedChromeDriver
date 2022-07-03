@@ -115,14 +115,26 @@ namespace SeleniumUndetectedChromeDriver
             //----- DebugPort -----
 
             //----- UserDataDir -----
+            var userDataDirArg = options.Arguments
+                .Select(it => Regex.Match(it, @"(?:--)?user-data-dir(?:[ =])?(.*)"))
+                .Select(it => it.Groups[1].Value)
+                .FirstOrDefault(it => it != "");
+            
             var keepUserDataDir = true;
-            if (userDataDir == null)
+            if (userDataDirArg == null)
             {
-                keepUserDataDir = false;
-                userDataDir = Path.Combine(
-                    Path.GetTempPath(), Guid.NewGuid().ToString());
+                if (userDataDir == null)
+                {
+                    keepUserDataDir = false;
+                    userDataDir = Path.Combine(
+                        Path.GetTempPath(), Guid.NewGuid().ToString());
+                }
+                options.AddArgument($"--user-data-dir={userDataDir}");
             }
-            options.AddArgument($"--user-data-dir={userDataDir}");
+            else
+            {
+                userDataDir = userDataDirArg;
+            }
             //----- UserDataDir -----
 
             //----- Language -----
