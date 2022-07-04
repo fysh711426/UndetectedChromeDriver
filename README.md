@@ -233,3 +233,10 @@ using var driver = UndetectedChromeDriverCreate(
     ...
     prefs: prefs);
 ```
+
+```C#
+// Add Extensions.
+var extension1 = @"D:\ChromeExtensions\Extension1";
+var extension2 = @"D:\ChromeExtensions\Extension2";
+options.AddArgument($"--load-extension={extension1},{extension2}");
+```
