@@ -34,14 +34,8 @@ using var driver = UndetectedChromeDriver.Create(
 driver.GoToUrl("https://nowsecure.nl");
 ```  
 
-> **Note**
-> If you need to reload chrome driver, you must use the new options.  
-
-
 > **Note**  
-
 > If you need to reload chrome driver, you must use the new options.  
-
 
 ```C#
 var createOptions = () =>
