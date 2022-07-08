@@ -36,6 +36,34 @@ using var driver = UndetectedChromeDriver.Create(
 driver.GoToUrl("https://nowsecure.nl");
 ```  
 
+> **Warning**  
+> If you need to reload chrome driver, please use a new options.  
+
+```C#
+var options = new ChromeOptions();
+var driver1 = UndetectedChromeDriver.Create(
+    options: options);
+var driver2 = UndetectedChromeDriver.Create(
+    options: options);
+```  
+
+Change to  
+
+```C#
+var createOptions = () =>
+{
+    var options = new ChromeOptions();
+    ...
+    return options;
+};
+var driver1 = UndetectedChromeDriver.Create(
+    options: createOptions());
+var driver2 = UndetectedChromeDriver.Create(
+    options: createOptions());
+```  
+
+---  
+
 ### parameters  
 
 * **options:** ChromeOptions, optional, default: null  
