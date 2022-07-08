@@ -4,19 +4,17 @@ This repo is C# implementation of [undetected_chromedriver](https://github.com/u
 
 It optimizes Selenium chromedriver to avoid being detected by anti-bot services.  
 
-### nuget install  
+### Nuget install  
 
 ```
 PM> Install-Package Selenium.UndetectedChromeDriver
 ```
 
-### namespace  
-
 ```C#
 using SeleniumUndetectedChromeDriver;
 ```
 
-### example  
+### Example  
 
 ```C#
 // xxx is a custom directory
@@ -36,18 +34,8 @@ using var driver = UndetectedChromeDriver.Create(
 driver.GoToUrl("https://nowsecure.nl");
 ```  
 
-> **Warning**  
-> If you need to reload chrome driver, please use a new options.  
-
-```C#
-var options = new ChromeOptions();
-var driver1 = UndetectedChromeDriver.Create(
-    options: options);
-var driver2 = UndetectedChromeDriver.Create(
-    options: options);
-```  
-
-Change to  
+> **Note**  
+> If you need to reload chrome driver, you must use the new options.  
 
 ```C#
 var createOptions = () =>
@@ -64,7 +52,7 @@ var driver2 = UndetectedChromeDriver.Create(
 
 ---  
 
-### parameters  
+### Parameters  
 
 * **options:** ChromeOptions, optional, default: null  
 　Used to define browser behavior.
@@ -100,12 +88,9 @@ Hide selenium command prompt window.
 
 ---  
 
-### prefs example  
+### Prefs example  
 
 ```C#
-// xxx is a custom directory
-var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
-
 // dict value can be value or json
 var prefs = new Dictionary<string, object>
 {
@@ -120,42 +105,33 @@ var prefs = new Dictionary<string, object>
 };
 
 using var driver = UndetectedChromeDriver.Create(
-    options: new ChromeOptions(),
-    driverExecutablePath: driverExecutablePath,
-    userDataDir: @"D:\xxx\ChromeUserData",
+    ...
     prefs: prefs);
-
-driver.GoToUrl("https://nowsecure.nl");
 ```  
 
-### multiple instance example  
+### Multiple instance example  
 
 ```C#
-// xxx is a custom directory
-var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
-
-// options must be independent
+// options cannot be shared
 var options1 = new ChromeOptions();
 var options2 = new ChromeOptions();
 
-// userDataDir must be independent
+// userDataDir cannot be shared
 var userDataDir1 = @"D:\xxx\ChromeUserData1";
 var userDataDir2 = @"D:\xxx\ChromeUserData2";
 
 using var driver1 = UndetectedChromeDriver.Create(
+    ...
     options: options1,
-    driverExecutablePath: driverExecutablePath,
     userDataDir: userDataDir1);
-driver1.GoToUrl("https://nowsecure.nl");
 
 using var driver2 = UndetectedChromeDriver.Create(
+    ...
     options: options2,
-    driverExecutablePath: driverExecutablePath,
     userDataDir: userDataDir2);
-driver2.GoToUrl("https://nowsecure.nl");
 ```
 
-### wpf example  
+### WPF example  
 
 ```C#
 public partial class MainWindow : Window
@@ -196,7 +172,7 @@ public partial class MainWindow : Window
 }
 ```
 
-### chrome argument example  
+### Chrome argument example  
 
 ```C#
 // Set language.
