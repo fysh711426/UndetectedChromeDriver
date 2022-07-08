@@ -64,11 +64,11 @@ namespace Example
             // xxx is a custom directory
             var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
-            // options must be independent
+            // options cannot be shared
             var options1 = new ChromeOptions();
             var options2 = new ChromeOptions();
 
-            // userDataDir must be independent
+            // userDataDir cannot be shared
             var userDataDir1 = @"D:\xxx\ChromeUserData1";
             var userDataDir2 = @"D:\xxx\ChromeUserData2";
 
