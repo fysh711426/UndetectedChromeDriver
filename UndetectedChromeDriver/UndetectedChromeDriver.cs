@@ -118,10 +118,13 @@ namespace SeleniumUndetectedChromeDriver
             //----- UserDataDir -----
             var keepUserDataDir = true;
             var userDataDirArg = options.Arguments
-                .Select(it => Regex.Match(it, @"(?:--)?user-data-dir(?:[ =])?(.*)"))
+                .Select(it => Regex.Match(it, 
+                    @"(?:--)?user-data-dir(?:[ =])?(.*)"))
                 .Select(it => it.Groups[1].Value)
-                .FirstOrDefault(it => it != "");
-            if (userDataDirArg == null)
+                .FirstOrDefault(it => !string.IsNullOrEmpty(it));
+            if (userDataDirArg != null)
+                userDataDir = userDataDirArg;
+            else
             {
                 if (userDataDir == null)
                 {
@@ -130,10 +133,6 @@ namespace SeleniumUndetectedChromeDriver
                         Path.GetTempPath(), Guid.NewGuid().ToString());
                 }
                 options.AddArgument($"--user-data-dir={userDataDir}");
-            }
-            else
-            {
-                userDataDir = userDataDirArg;
             }
             //----- UserDataDir -----
 
