@@ -106,21 +106,21 @@ namespace SeleniumUndetectedChromeDriver
             //----- Options -----
 
             //----- DebugPort -----
+            if (options.DebuggerAddress != null)
+                throw new Exception("Options is already used, please create new ChromeOptions.");
             var debugHost = "127.0.0.1";
             var debugPort = findFreePort();
-            if (options.DebuggerAddress == null)
-                options.DebuggerAddress = $"{debugHost}:{debugPort}";
             options.AddArgument($"--remote-debugging-host={debugHost}");
             options.AddArgument($"--remote-debugging-port={debugPort}");
+            options.DebuggerAddress = $"{debugHost}:{debugPort}";
             //----- DebugPort -----
 
             //----- UserDataDir -----
+            var keepUserDataDir = true;
             var userDataDirArg = options.Arguments
                 .Select(it => Regex.Match(it, @"(?:--)?user-data-dir(?:[ =])?(.*)"))
                 .Select(it => it.Groups[1].Value)
                 .FirstOrDefault(it => it != "");
-            
-            var keepUserDataDir = true;
             if (userDataDirArg == null)
             {
                 if (userDataDir == null)
