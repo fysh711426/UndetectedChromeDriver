@@ -35,7 +35,7 @@ driver.GoToUrl("https://nowsecure.nl");
 ```  
 
 > **Note**  
-> If you need to reload chrome driver, you must use the new options.  
+> If you need to reload chrome driver, you must use new options.  
 
 ```C#
 var createOptions = () =>
