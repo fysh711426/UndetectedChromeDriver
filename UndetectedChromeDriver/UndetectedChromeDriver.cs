@@ -118,7 +118,7 @@ namespace SeleniumUndetectedChromeDriver
             //----- UserDataDir -----
             var keepUserDataDir = true;
             var userDataDirArg = options.Arguments
-                .Select(it => Regex.Match(it, 
+                .Select(it => Regex.Match(it,
                     @"(?:--)?user-data-dir(?:[ =])?(.*)"))
                 .Select(it => it.Groups[1].Value)
                 .FirstOrDefault(it => !string.IsNullOrEmpty(it));

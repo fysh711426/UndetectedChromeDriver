@@ -20,40 +20,81 @@ using SeleniumUndetectedChromeDriver;
 // xxx is a custom directory
 var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
-// customized chrome options
-var options = new ChromeOptions();
-options.AddArgument("--mute-audio");
-options.AddArgument("--disable-gpu");
-options.AddArgument("--disable-dev-shm-usage");
-
-// using keyword is required to dispose the chrome driver
 using var driver = UndetectedChromeDriver.Create(
-    options: options,
     driverExecutablePath: driverExecutablePath);
 
 driver.GoToUrl("https://nowsecure.nl");
 ```  
 
+### Options example  
+
+```C#
+var options = new ChromeOptions();
+options.AddArgument("--mute-audio");
+
+using var driver = UndetectedChromeDriver.Create(
+    ...
+    options: options);
+```  
+
 > **Note**  
-> If you need to reload chrome driver, you must use a new options.  
+> Options cannot be shared, each initialization must create a new one.  
 
 ```C#
 var createOptions = () =>
 {
-    // options cannot be shared
     var options = new ChromeOptions();
     ...
     return options;
 };
-
-driver = UndetectedChromeDriver.Create(
+var driver1 = UndetectedChromeDriver.Create(
     options: createOptions());
-driver.Dispose();
-
-driver = UndetectedChromeDriver.Create(
+var driver2 = UndetectedChromeDriver.Create(
     options: createOptions());
-driver.Dispose();
 ```  
+
+---  
+
+### WPF example  
+
+```C#
+public partial class MainWindow : Window
+{
+    private UndetectedChromeDriver _driver;
+    public MainWindow()
+    {
+        InitializeComponent();
+        this.Loaded += MainWindow_Loaded;
+        this.Closed += MainWindow_Closed;
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
+
+        var options = new ChromeOptions();
+        options.AddArgument("--mute-audio");
+        options.AddArgument("--disable-gpu");
+        options.AddArgument("--disable-dev-shm-usage");
+
+        _driver = UndetectedChromeDriver.Create(
+            options: options,
+            driverExecutablePath: driverExecutablePath,
+            // hide selenium command prompt window  
+            hideCommandPromptWindow: true);
+    }
+
+    private void MainWindow_Closed(object? sender, EventArgs e)
+    {
+        _driver.Dispose();
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        _driver.GoToUrl("https://nowsecure.nl");
+    }
+}
+```
 
 ---  
 
@@ -85,7 +126,7 @@ driver.Dispose();
 　First launch using the welcome page.  
 
 * **hideCommandPromptWindow:** bool, optional, default: false  
-Hide selenium command prompt window.
+　Hide selenium command prompt window.
 
 * **prefs:** Dictionary<string, object>, optional, default: null  
 　Prefs is meant to store lightweight state that reflects user preferences.  
@@ -134,47 +175,6 @@ using var driver2 = UndetectedChromeDriver.Create(
     ...
     options: options2,
     userDataDir: userDataDir2);
-```
-
-### WPF example  
-
-```C#
-public partial class MainWindow : Window
-{
-    private UndetectedChromeDriver _driver;
-    public MainWindow()
-    {
-        InitializeComponent();
-        this.Loaded += MainWindow_Loaded;
-        this.Closed += MainWindow_Closed;
-    }
-
-    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-    {
-        var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
-
-        var options = new ChromeOptions();
-        options.AddArgument("--mute-audio");
-        options.AddArgument("--disable-gpu");
-        options.AddArgument("--disable-dev-shm-usage");
-
-        _driver = UndetectedChromeDriver.Create(
-            options: options,
-            driverExecutablePath: driverExecutablePath,
-            // hide selenium command prompt window  
-            hideCommandPromptWindow: true);
-    }
-
-    private void MainWindow_Closed(object? sender, EventArgs e)
-    {
-        _driver.Dispose();
-    }
-
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        _driver.GoToUrl("https://nowsecure.nl");
-    }
-}
 ```
 
 ### Chrome argument example  

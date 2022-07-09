@@ -14,15 +14,7 @@ namespace Example
             // xxx is a custom directory
             var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
-            // customized chrome options
-            var options = new ChromeOptions();
-            options.AddArgument("--mute-audio");
-            options.AddArgument("--disable-gpu");
-            options.AddArgument("--disable-dev-shm-usage");
-
-            // using keyword is required to dispose the chrome driver
             using var driver = UndetectedChromeDriver.Create(
-                options: options,
                 driverExecutablePath: driverExecutablePath);
 
             driver.GoToUrl("https://nowsecure.nl");
