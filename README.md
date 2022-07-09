@@ -53,6 +53,15 @@ var driver2 = UndetectedChromeDriver.Create(
     options: createOptions());
 ```  
 
+### UserDataDir example  
+
+```C#
+var userDataDir = @"D:\xxx\ChromeUserData";
+using var driver = UndetectedChromeDriver.Create(
+    ...
+    userDataDir: userDataDir);
+```  
+
 ---  
 
 ### WPF example  
@@ -72,13 +81,7 @@ public partial class MainWindow : Window
     {
         var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
 
-        var options = new ChromeOptions();
-        options.AddArgument("--mute-audio");
-        options.AddArgument("--disable-gpu");
-        options.AddArgument("--disable-dev-shm-usage");
-
         _driver = UndetectedChromeDriver.Create(
-            options: options,
             driverExecutablePath: driverExecutablePath,
             // hide selenium command prompt window  
             hideCommandPromptWindow: true);
