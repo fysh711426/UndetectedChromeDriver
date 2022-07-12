@@ -17,13 +17,19 @@ using SeleniumUndetectedChromeDriver;
 ### Example  
 
 ```C#
-// xxx is a custom directory
-var driverExecutablePath = $@"D:\xxx\chromedriver.exe";
-
 using var driver = UndetectedChromeDriver.Create(
-    driverExecutablePath: driverExecutablePath);
+    driverExecutablePath: @"D:\xxx\chromedriver.exe");
 
 driver.GoToUrl("https://nowsecure.nl");
+```  
+
+> **Note**  
+> If your chrome is not in default path, you can use browserExecutablePath to set.  
+
+```C#
+using var driver = UndetectedChromeDriver.Create(
+    ...
+    browserExecutablePath: @"C:\xxx\chrome.exe");
 ```  
 
 ### Options example  
@@ -38,7 +44,7 @@ using var driver = UndetectedChromeDriver.Create(
 ```  
 
 > **Note**  
-> Options cannot be shared, each initialization must create a new one.  
+> Options cannot be shared, you need to create a new one each time.  
 
 ```C#
 var createOptions = () =>
