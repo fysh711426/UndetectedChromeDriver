@@ -10,11 +10,11 @@ It optimizes Selenium chromedriver to avoid being detected by anti-bot services.
 PM> Install-Package Selenium.UndetectedChromeDriver
 ```
 
+### Example  
+
 ```C#
 using SeleniumUndetectedChromeDriver;
 ```
-
-### Example  
 
 ```C#
 using var driver = UndetectedChromeDriver.Create(
@@ -23,8 +23,7 @@ using var driver = UndetectedChromeDriver.Create(
 driver.GoToUrl("https://nowsecure.nl");
 ```  
 
-> **Note**  
-> If your chrome is not in default path, you can use browserExecutablePath to set.  
+If your chrome is not in default path, you can use browserExecutablePath to set.  
 
 ```C#
 using var driver = UndetectedChromeDriver.Create(
@@ -43,8 +42,7 @@ using var driver = UndetectedChromeDriver.Create(
     options: options);
 ```  
 
-> **Note**  
-> Options cannot be shared, you need to create a new one each time.  
+Options cannot be shared, you need to create a new one every time.  
 
 ```C#
 var createOptions = () =>
