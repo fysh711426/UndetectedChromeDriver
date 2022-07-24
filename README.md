@@ -256,3 +256,24 @@ var extension1 = @"D:\ChromeExtensions\Extension1";
 var extension2 = @"D:\ChromeExtensions\Extension2";
 options.AddArgument($"--load-extension={extension1},{extension2}");
 ```
+
+---  
+
+### Network capture  
+
+```C#
+// import dev tools version
+using DevToolsVer = OpenQA.Selenium.DevTools.V103;
+
+// capture iframe
+options.AddArgument("--disable-features=IsolateOrigins,site-per-process");
+
+// log request url
+var devTools = ((IDevTools)driver).GetDevToolsSession()
+    .GetVersionSpecificDomains<DevToolsVer.DevToolsSessionDomains>();
+await devTools.Network.Enable(new DevToolsVer.Network.EnableCommandSettings());
+devTools.Network.RequestWillBeSent += (sender, e) =>
+{
+    Console.WriteLine(e.Request.Url);
+};
+```
