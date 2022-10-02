@@ -133,11 +133,14 @@ public partial class MainWindow : Window
 　First launch using the welcome page.  
 
 * **hideCommandPromptWindow:** bool, optional, default: false  
-　Hide selenium command prompt window.
+　Hide selenium command prompt window.  
 
 * **prefs:** Dictionary<string, object>, optional, default: null  
 　Prefs is meant to store lightweight state that reflects user preferences.  
-　dict value can be value or json.
+　dict value can be value or json.  
+
+* **configureService:** Action\<ChromeDriverService\>, optional, default: null  
+　Initialize configuration ChromeDriverService.  
 
 ---  
 
@@ -276,4 +279,24 @@ devTools.Network.RequestWillBeSent += (sender, e) =>
 {
     Console.WriteLine(e.Request.Url);
 };
+```
+
+---  
+
+### Suppress initial information  
+
+```C#
+using var driver = UndetectedChromeDriver.Create(
+    ...
+    // Set chrome log level.
+    logLevel: 2,
+    // INFO = 0
+    // WARNING = 1
+    // ERROR = 2
+    // FATAL = 3
+    configureService: (service) =>
+    {
+        // Suppress initial chrome driver information.
+        service.SuppressInitialDiagnosticInformation = true;
+    });
 ```

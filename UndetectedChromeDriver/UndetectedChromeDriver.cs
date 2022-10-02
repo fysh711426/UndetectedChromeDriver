@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -82,6 +81,7 @@ namespace SeleniumUndetectedChromeDriver
         /// <param name="hideCommandPromptWindow">Hide selenium command prompt window.</param>
         /// <param name="prefs">Prefs is meant to store lightweight state that reflects user preferences.
         /// dict value can be value or json.</param>
+        /// <param name="configureService">Initialize configuration ChromeDriverService.</param>
         /// <returns>UndetectedChromeDriver</returns>
         public static UndetectedChromeDriver Create(
             ChromeOptions options = null,
@@ -92,7 +92,8 @@ namespace SeleniumUndetectedChromeDriver
             bool headless = false,
             bool suppressWelcome = true,
             bool hideCommandPromptWindow = false,
-            Dictionary<string, object> prefs = null)
+            Dictionary<string, object> prefs = null,
+            Action<ChromeDriverService> configureService = null)
         {
             //----- Patcher ChromeDriver -----
             var patcher = new Patcher(
@@ -214,6 +215,8 @@ namespace SeleniumUndetectedChromeDriver
                 Path.GetDirectoryName(driverExecutablePath),
                 Path.GetFileName(driverExecutablePath));
             service.HideCommandPromptWindow = hideCommandPromptWindow;
+            if (configureService != null)
+                configureService(service);
             var driver = new UndetectedChromeDriver(service, options);
             //----- Create ChromeDriver -----
 
