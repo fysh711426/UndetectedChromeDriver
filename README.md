@@ -288,12 +288,6 @@ devTools.Network.RequestWillBeSent += (sender, e) =>
 ```C#
 using var driver = UndetectedChromeDriver.Create(
     ...
-    // Set chrome log level.
-    logLevel: 2,
-    // INFO = 0
-    // WARNING = 1
-    // ERROR = 2
-    // FATAL = 3
     configureService: (service) =>
     {
         // Suppress initial chrome driver information.
