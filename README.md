@@ -290,7 +290,7 @@ using var driver = UndetectedChromeDriver.Create(
     ...
     configureService: (service) =>
     {
-        // Suppress initial chrome driver information.
+        // Suppress chrome driver initial information.
         service.SuppressInitialDiagnosticInformation = true;
     });
 ```
