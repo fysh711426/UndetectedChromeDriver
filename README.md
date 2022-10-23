@@ -294,3 +294,14 @@ using var driver = UndetectedChromeDriver.Create(
         service.SuppressInitialDiagnosticInformation = true;
     });
 ```
+
+### Add cookies  
+
+```C#
+driver.GoToUrl("url");
+
+driver.Manage().Cookies.AddCookie(
+    new OpenQA.Selenium.Cookie("TestCookie", "TestCookieValue"));
+
+driver.GoToUrl("url");
+```
