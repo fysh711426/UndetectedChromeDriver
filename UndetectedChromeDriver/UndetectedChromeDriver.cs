@@ -436,6 +436,7 @@ namespace SeleniumUndetectedChromeDriver
 
         protected override void Dispose(bool disposing)
         {
+            //_service.Dispose();
             base.Dispose(disposing);
 
             try
