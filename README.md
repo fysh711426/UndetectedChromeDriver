@@ -135,6 +135,10 @@ public partial class MainWindow : Window
 * **hideCommandPromptWindow:** bool, optional, default: false  
 　Hide selenium command prompt window.  
 
+* **commandTimeout:** TimeSpan, optional, default: null  
+　The maximum amount of time to wait for each command.  
+　default value is 60 seconds.  
+
 * **prefs:** Dictionary<string, object>, optional, default: null  
 　Prefs is meant to store lightweight state that reflects user preferences.  
 　dict value can be value or json.  
@@ -304,4 +308,11 @@ driver.Manage().Cookies.AddCookie(
     new OpenQA.Selenium.Cookie("TestCookie", "TestCookieValue"));
 
 driver.GoToUrl("url");
+```
+
+### Use proxy  
+
+```C#
+options.AddArguments("--proxy-server=192.168.1.100:2048");
+options.AddArguments("--proxy-server=socks5://192.168.1.100");
 ```
