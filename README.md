@@ -299,6 +299,14 @@ using var driver = UndetectedChromeDriver.Create(
     });
 ```
 
+### Get cookies  
+
+```C#
+var cookies = string.Join("; ",
+    driver.Manage().Cookies.AllCookies
+        .Select(it => $"{it.Name}={it.Value}"));
+```
+
 ### Add cookies  
 
 ```C#
@@ -310,9 +318,22 @@ driver.Manage().Cookies.AddCookie(
 driver.GoToUrl("url");
 ```
 
+### Get user agent  
+
+```C#
+var userAgent = driver.ExecuteJavaScript<string>(
+    "return navigator.userAgent;");
+```
+
 ### Use proxy  
 
 ```C#
 options.AddArguments("--proxy-server=192.168.1.100:2048");
 options.AddArguments("--proxy-server=socks5://192.168.1.100");
+```
+
+### Move off screen  
+
+```C#
+options.AddArgument(@"--window-position=""10000,10000""");
 ```
