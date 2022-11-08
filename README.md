@@ -337,3 +337,9 @@ options.AddArguments("--proxy-server=socks5://192.168.1.100");
 ```C#
 options.AddArgument(@"--window-position=""10000,10000""");
 ```
+
+---  
+
+### Declare  
+
+This repo is not an official [undetected_chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver) product.  
