@@ -4,11 +4,15 @@ This repo is C# implementation of [undetected_chromedriver](https://github.com/u
 
 It optimizes Selenium chromedriver to avoid being detected by anti-bot services.  
 
+---  
+
 ### Nuget install  
 
 ```
 PM> Install-Package Selenium.UndetectedChromeDriver
 ```
+
+---  
 
 ### Example  
 
@@ -66,8 +70,6 @@ using var driver = UndetectedChromeDriver.Create(
     userDataDir: userDataDir);
 ```  
 
----  
-
 ### WPF example  
 
 ```C#
@@ -102,51 +104,6 @@ public partial class MainWindow : Window
     }
 }
 ```
-
----  
-
-### Parameters  
-
-* **options:** ChromeOptions, optional, default: null  
-　Used to define browser behavior.
-
-* **userDataDir:** str, optional, default: null    
-　Set chrome user profile directory.  
-　creates a temporary profile if userDataDir is null,  
-　and automatically deletes it after exiting.  
-
-* **driverExecutablePath:** str, required  
-　Set chrome driver executable file path. (patches new binary)
-
-* **browserExecutablePath:** str, optional, default: null  
-　Set browser executable file path.  
-　default using $PATH to execute.  
-
-* **logLevel:** int, optional, default: 0  
-　Set chrome logLevel.  
-
-* **headless:** bool, optional, default: false  
-　Specifies to use the browser in headless mode.  
-　warning: This reduces undetectability and is not fully supported.  
-
-* **suppressWelcome:** bool, optional, default: true  
-　First launch using the welcome page.  
-
-* **hideCommandPromptWindow:** bool, optional, default: false  
-　Hide selenium command prompt window.  
-
-* **commandTimeout:** TimeSpan, optional, default: null  
-　The maximum amount of time to wait for each command.  
-　default value is 60 seconds.  
-
-* **prefs:** Dictionary<string, object>, optional, default: null  
-　Prefs is meant to store lightweight state that reflects user preferences.  
-　dict value can be value or json.  
-
-* **configureService:** Action\<ChromeDriverService\>, optional, default: null  
-　Initialize configuration ChromeDriverService.  
-
----  
 
 ### Prefs example  
 
@@ -190,6 +147,51 @@ using var driver2 = UndetectedChromeDriver.Create(
     options: options2,
     userDataDir: userDataDir2);
 ```
+
+---  
+
+### Parameters  
+
+* **options:** ChromeOptions, optional, default: null  
+　Used to define browser behavior.  
+
+* **userDataDir:** str, optional, default: null  
+　Set chrome user profile directory.  
+　creates a temporary profile if userDataDir is null,  
+　and automatically deletes it after exiting.  
+
+* **driverExecutablePath:** str, required  
+　Set chrome driver executable file path. (patches new binary)  
+
+* **browserExecutablePath:** str, optional, default: null  
+　Set browser executable file path.  
+　default using $PATH to execute.  
+
+* **logLevel:** int, optional, default: 0  
+　Set chrome logLevel.  
+
+* **headless:** bool, optional, default: false  
+　Specifies to use the browser in headless mode.  
+　warning: This reduces undetectability and is not fully supported.  
+
+* **suppressWelcome:** bool, optional, default: true  
+　First launch using the welcome page.  
+
+* **hideCommandPromptWindow:** bool, optional, default: false  
+　Hide selenium command prompt window.  
+
+* **commandTimeout:** TimeSpan, optional, default: null  
+　The maximum amount of time to wait for each command.  
+　default value is 60 seconds.  
+
+* **prefs:** Dictionary<string, object>, optional, default: null  
+　Prefs is meant to store lightweight state that reflects user preferences.  
+　dict value can be value or json.  
+
+* **configureService:** Action\<ChromeDriverService\>, optional, default: null  
+　Initialize configuration ChromeDriverService.  
+
+---  
 
 ### Chrome argument example  
 
