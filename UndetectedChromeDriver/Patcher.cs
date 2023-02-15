@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SeleniumUndetectedChromeDriver
 {
@@ -17,7 +18,9 @@ namespace SeleniumUndetectedChromeDriver
         public void Auto()
         {
             if (!isBinaryPatched())
+            {
                 patchExe();
+            }
         }
 
         private bool isBinaryPatched()
@@ -34,7 +37,7 @@ namespace SeleniumUndetectedChromeDriver
                     var line = reader.ReadLine();
                     if (line == null)
                         break;
-                    if (line.Contains("cdc_"))
+                    if (line.Contains("{window.cdc_"))
                         return false;
                 }
                 return true;
@@ -44,33 +47,36 @@ namespace SeleniumUndetectedChromeDriver
         private int patchExe()
         {
             var linect = 0;
-            var replacement = genRandomCdc();
+            var replacement = "{}";
 
             using (var fs = new FileStream(_driverExecutablePath,
                 FileMode.Open, FileAccess.ReadWrite))
             {
                 var buffer = new byte[1];
-                var check = new StringBuilder("....");
-
+                var check = new StringBuilder();
                 var read = 0;
+
                 while (true)
                 {
                     read = fs.Read(buffer, 0, buffer.Length);
                     if (read == 0)
                         break;
 
-                    check.Remove(0, 1);
                     check.Append((char)buffer[0]);
+                }
 
-                    if (check.ToString() == "cdc_")
-                    {
-                        fs.Seek(-4, SeekOrigin.Current);
-                        var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(replacement);
-                        fs.Write(bytes, 0, bytes.Length);
-                        linect++;
-                    }
+                Match m = Regex.Match(check.ToString(), @"\{window\.cdc.*?;\}");
+
+                if (m.Success)
+                {
+                    check = check.Replace(m.Value, replacement + (new string(' ', m.Value.Length - replacement.Length)));
+                    fs.Seek(0, SeekOrigin.Begin);
+                    var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(check.ToString());
+                    fs.Write(bytes, 0, bytes.Length);
+                    linect = m.Index;
                 }
             }
+
             return linect;
         }
 
