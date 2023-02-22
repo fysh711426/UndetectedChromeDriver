@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -118,7 +117,8 @@ namespace SeleniumUndetectedChromeDriver
             //----- BinaryLocation -----
             if (browserExecutablePath == null)
             {
-                browserExecutablePath = callFindChromeExecutable();
+                var executable = new ChromeExecutable();
+                browserExecutablePath = executable.GetExecutablePath();
                 if (browserExecutablePath == null)
                     throw new Exception("Not found chrome.exe.");
             }
@@ -391,105 +391,6 @@ namespace SeleniumUndetectedChromeDriver
         //             "
         //        });
         //}
-
-        private static string callFindChromeExecutable()
-        {
-            var result = "";
-#if (NET48 || NET47 || NET46 || NET45)
-            result = findChromeExecutable();
-#else
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                result = findChromeExecutable();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                result = findChromeExecutableLinux();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                result = findChromeExecutableMacos();
-#endif
-            return result;
-        }
-
-        private static string findChromeExecutable()
-        {
-            var candidates = new List<string>();
-
-            foreach (var item in new[] {
-                "PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA", "PROGRAMW6432"
-            })
-            {
-                foreach (var subitem in new[] {
-                    @"Google\Chrome\Application",
-                    @"Google\Chrome Beta\Application",
-                    @"Google\Chrome Canary\Application"
-                })
-                {
-                    var variable = Environment.GetEnvironmentVariable(item);
-                    if (variable != null)
-                        candidates.Add(Path.Combine(variable, subitem, "chrome.exe"));
-                }
-            }
-
-            foreach (var candidate in candidates)
-                if (File.Exists(candidate))
-                    return candidate;
-            return null;
-        }
-
-        private static string findChromeExecutableLinux()
-        {
-            var candidates = new List<string>();
-
-            var variables = Environment.GetEnvironmentVariable("PATH")
-                .Split(Path.PathSeparator);
-            foreach (var item in variables)
-            {
-                foreach (var subitem in new[] {
-                    "google-chrome",
-                    "chromium",
-                    "chromium-browser",
-                    "chrome",
-                    "google-chrome-stable",
-                })
-                {
-                    candidates.Add(Path.Combine(item, subitem));
-                }
-            }
-
-            foreach (var candidate in candidates)
-                if (File.Exists(candidate))
-                    return candidate;
-            return null;
-        }
-
-        private static string findChromeExecutableMacos()
-        {
-            var candidates = new List<string>();
-
-            var variables = Environment.GetEnvironmentVariable("PATH")
-                .Split(Path.PathSeparator);
-            foreach (var item in variables)
-            {
-                foreach (var subitem in new[] {
-                    "google-chrome",
-                    "chromium",
-                    "chromium-browser",
-                    "chrome",
-                    "google-chrome-stable",
-                })
-                {
-                    candidates.Add(Path.Combine(item, subitem));
-                }
-            }
-
-            candidates.AddRange(new string[] {
-                "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-                "/Applications/Chromium.app/Contents/MacOS/Chromium"
-            });
-
-            foreach (var candidate in candidates)
-                if (File.Exists(candidate))
-                    return candidate;
-            return null;
-        }
 
         private static int findFreePort()
         {
