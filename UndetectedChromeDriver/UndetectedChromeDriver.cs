@@ -2,7 +2,6 @@
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -28,52 +27,6 @@ namespace SeleniumUndetectedChromeDriver
         private bool _keepUserDataDir = true;
         private string _userDataDir = null;
 
-        /*
-            Creates a new instance of the chrome driver.
-            
-            Parameters
-            ----------
-
-            options: ChromeOptions, optional, default: null 
-                Used to define browser behavior.
-
-            userDataDir: str, optional, default: null
-                Set chrome user profile directory.
-                creates a temporary profile if userDataDir is null,
-                and automatically deletes it after exiting.
-
-            driverExecutablePath: str, required
-                Set chrome driver executable file path. (patches new binary)
-
-            browserExecutablePath: str, optional, default: null
-                Set browser executable file path.
-                default using $PATH to execute.
-
-            logLevel: int, optional, default: 0
-                Set chrome logLevel.
-
-            headless: bool, optional, default: false
-                Specifies to use the browser in headless mode.
-                warning: This reduces undetectability and is not fully supported.
-
-            suppressWelcome: bool, optional, default: true
-                First launch using the welcome page.
-
-            hideCommandPromptWindow: bool, optional, default: false
-                Hide selenium command prompt window.  
-
-            commandTimeout: TimeSpan, optional, default: null
-                The maximum amount of time to wait for each command.  
-                default value is 60 seconds.
-
-            prefs: Dictionary<string, object>, optional, default: null
-                Prefs is meant to store lightweight state that reflects user preferences.
-                dict value can be value or json.
-
-            configureService: Action<ChromeDriverService>, optional, default: null
-                Initialize configuration ChromeDriverService.
-        */
-
         /// <summary>
         /// Creates a new instance of the chrome driver.
         /// </summary>
@@ -84,9 +37,13 @@ namespace SeleniumUndetectedChromeDriver
         /// <param name="driverExecutablePath">Set chrome driver executable file path. (patches new binary)</param>
         /// <param name="browserExecutablePath">Set browser executable file path.
         /// default using $PATH to execute.</param>
+        /// <param name="port">Set the port used by the chromedriver executable. (not debugger port)</param>
         /// <param name="logLevel">Set chrome logLevel.</param>
         /// <param name="headless">Specifies to use the browser in headless mode.
         /// warning: This reduces undetectability and is not fully supported.</param>
+        /// <param name="noSandbox">Set use --no-sandbox, and suppress the "unsecure option" status bar.
+        /// this option has a default of true since many people seem to run this as root(....) ,
+        /// and chrome does not start when running as root without using --no-sandbox flag.</param>
         /// <param name="suppressWelcome">First launch using the welcome page.</param>
         /// <param name="hideCommandPromptWindow">Hide selenium command prompt window.</param>
         /// <param name="commandTimeout">The maximum amount of time to wait for each command.
@@ -100,8 +57,10 @@ namespace SeleniumUndetectedChromeDriver
             string userDataDir = null,
             string driverExecutablePath = null,
             string browserExecutablePath = null,
+            int port = 0,
             int logLevel = 0,
             bool headless = false,
+            bool noSandbox = true,
             bool suppressWelcome = true,
             bool hideCommandPromptWindow = false,
             TimeSpan? commandTimeout = null,
@@ -152,7 +111,7 @@ namespace SeleniumUndetectedChromeDriver
 
             //----- Language -----
             var language = CultureInfo.CurrentCulture.Name;
-            if(!options.Arguments.Any(it => it.Contains("--lang")))
+            if (!options.Arguments.Any(it => it.Contains("--lang")))
                 options.AddArgument($"--lang={language}");
             //----- Language -----
 
@@ -171,15 +130,21 @@ namespace SeleniumUndetectedChromeDriver
                 options.AddArguments("--no-default-browser-check", "--no-first-run");
             //----- SuppressWelcome -----
 
+            //----- NoSandbox -----
+            if (noSandbox)
+                options.AddArguments("--no-sandbox", "--test-type");
+            //----- NoSandbox -----
+
             //----- Headless -----
             if (headless)
             {
-                options.AddArguments("--headless");
-                options.AddArguments("--window-size=1920,1080");
-                options.AddArguments("--start-maximized");
-                options.AddArguments("--no-sandbox");
+                options.AddArguments("--headless=new");
             }
             //----- Headless -----
+
+            options.AddArguments("--window-size=1920,1080");
+            options.AddArguments("--start-maximized");
+            // options.AddArguments("--no-sandbox");
 
             //----- LogLevel -----
             options.AddArguments($"--log-level={logLevel}");
@@ -194,14 +159,14 @@ namespace SeleniumUndetectedChromeDriver
             try
             {
                 var filePath = Path.Combine(userDataDir, @"Default/Preferences");
-                var json = File.ReadAllText(filePath, 
+                var json = File.ReadAllText(filePath,
                     Encoding.GetEncoding("ISO-8859-1"));
                 var regex = new Regex(@"(?<=exit_type"":)(.*?)(?=,)");
                 var exitType = regex.Match(json).Value;
                 if (exitType != "" && exitType != "null")
                 {
                     json = regex.Replace(json, "null");
-                    File.WriteAllText(filePath, json, 
+                    File.WriteAllText(filePath, json,
                         Encoding.GetEncoding("ISO-8859-1"));
                 }
             }
@@ -228,6 +193,8 @@ namespace SeleniumUndetectedChromeDriver
                 Path.GetDirectoryName(driverExecutablePath),
                 Path.GetFileName(driverExecutablePath));
             service.HideCommandPromptWindow = hideCommandPromptWindow;
+            if (port != 0)
+                service.Port = port;
             if (configureService != null)
                 configureService(service);
             if (commandTimeout == null)
@@ -249,8 +216,8 @@ namespace SeleniumUndetectedChromeDriver
         {
             if (_headless)
                 configureHeadless();
-            if (hasCdcProps())
-                hookRemoveCdcProps();
+            //if (hasCdcProps())
+            //    hookRemoveCdcProps();
             Navigate().GoToUrl(url);
         }
 
@@ -264,17 +231,18 @@ namespace SeleniumUndetectedChromeDriver
                     {
                         ["source"] =
                         @"
-                            Object.defineProperty(window, 'navigator', {
-                                value: new Proxy(navigator, {
-                                        has: (target, key) => (key === 'webdriver' ? false : key in target),
-                                        get: (target, key) =>
-                                                key === 'webdriver' ?
-                                                false :
-                                                typeof target[key] === 'function' ?
-                                                target[key].bind(target) :
-                                                target[key]
-                                        })
-                            });
+                            Object.defineProperty(window, ""navigator"", {
+                                Object.defineProperty(window, ""navigator"", {
+                                  value: new Proxy(navigator, {
+                                    has: (target, key) => (key === ""webdriver"" ? false : key in target),
+                                    get: (target, key) =>
+                                      key === ""webdriver""
+                                        ? false
+                                        : typeof target[key] === ""function""
+                                        ? target[key].bind(target)
+                                        : target[key],
+                                  }),
+                                });
                          "
                     });
                 ExecuteCdpCommand(
@@ -292,46 +260,137 @@ namespace SeleniumUndetectedChromeDriver
                     {
                         ["source"] =
                         @"
-                            Object.defineProperty(navigator, 'maxTouchPoints', {
-                                    get: () => 1
-                            });
+                            Object.defineProperty(navigator, 'maxTouchPoints', {get: () => 1});
+                            Object.defineProperty(navigator.connection, 'rtt', {get: () => 100});
+
+                            // https://github.com/microlinkhq/browserless/blob/master/packages/goto/src/evasions/chrome-runtime.js
+                            window.chrome = {
+                                app: {
+                                    isInstalled: false,
+                                    InstallState: {
+                                        DISABLED: 'disabled',
+                                        INSTALLED: 'installed',
+                                        NOT_INSTALLED: 'not_installed'
+                                    },
+                                    RunningState: {
+                                        CANNOT_RUN: 'cannot_run',
+                                        READY_TO_RUN: 'ready_to_run',
+                                        RUNNING: 'running'
+                                    }
+                                },
+                                runtime: {
+                                    OnInstalledReason: {
+                                        CHROME_UPDATE: 'chrome_update',
+                                        INSTALL: 'install',
+                                        SHARED_MODULE_UPDATE: 'shared_module_update',
+                                        UPDATE: 'update'
+                                    },
+                                    OnRestartRequiredReason: {
+                                        APP_UPDATE: 'app_update',
+                                        OS_UPDATE: 'os_update',
+                                        PERIODIC: 'periodic'
+                                    },
+                                    PlatformArch: {
+                                        ARM: 'arm',
+                                        ARM64: 'arm64',
+                                        MIPS: 'mips',
+                                        MIPS64: 'mips64',
+                                        X86_32: 'x86-32',
+                                        X86_64: 'x86-64'
+                                    },
+                                    PlatformNaclArch: {
+                                        ARM: 'arm',
+                                        MIPS: 'mips',
+                                        MIPS64: 'mips64',
+                                        X86_32: 'x86-32',
+                                        X86_64: 'x86-64'
+                                    },
+                                    PlatformOs: {
+                                        ANDROID: 'android',
+                                        CROS: 'cros',
+                                        LINUX: 'linux',
+                                        MAC: 'mac',
+                                        OPENBSD: 'openbsd',
+                                        WIN: 'win'
+                                    },
+                                    RequestUpdateCheckStatus: {
+                                        NO_UPDATE: 'no_update',
+                                        THROTTLED: 'throttled',
+                                        UPDATE_AVAILABLE: 'update_available'
+                                    }
+                                }
+                            }
+
+                            // https://github.com/microlinkhq/browserless/blob/master/packages/goto/src/evasions/navigator-permissions.js
+                            if (!window.Notification) {
+                                window.Notification = {
+                                    permission: 'denied'
+                                }
+                            }
+
+                            const originalQuery = window.navigator.permissions.query
+                            window.navigator.permissions.__proto__.query = parameters =>
+                                parameters.name === 'notifications'
+                                    ? Promise.resolve({ state: window.Notification.permission })
+                                    : originalQuery(parameters)
+
+                            const oldCall = Function.prototype.call
+                            function call() {
+                                return oldCall.apply(this, arguments)
+                            }
+                            Function.prototype.call = call
+
+                            const nativeToStringFunctionString = Error.toString().replace(/Error/g, 'toString')
+                            const oldToString = Function.prototype.toString
+
+                            function functionToString() {
+                                if (this === window.navigator.permissions.query) {
+                                    return 'function query() { [native code] }'
+                                }
+                                if (this === functionToString) {
+                                    return nativeToStringFunctionString
+                                }
+                                return oldCall.call(oldToString, this)
+                            }
+                            // eslint-disable-next-line
+                            Function.prototype.toString = functionToString
                          "
                     });
             }
         }
 
-        private bool hasCdcProps()
-        {
-            var props = (ReadOnlyCollection<object>)ExecuteScript(
-                @"
-                    let objectToInspect = window,
-                        result = [];
-                    while(objectToInspect !== null)
-                    { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
-                      objectToInspect = Object.getPrototypeOf(objectToInspect); }
-                    return result.filter(i => i.match(/.+_.+_(Array|Promise|Symbol)/ig))
-                 ");
-            return props.Count > 0;
-        }
+        //private bool hasCdcProps()
+        //{
+        //    var props = (ReadOnlyCollection<object>)ExecuteScript(
+        //        @"
+        //            let objectToInspect = window,
+        //                result = [];
+        //            while(objectToInspect !== null)
+        //            { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
+        //              objectToInspect = Object.getPrototypeOf(objectToInspect); }
+        //            return result.filter(i => i.match(/^([a-zA-Z]){27}(Array|Promise|Symbol)$/ig))
+        //         ");
+        //    return props.Count > 0;
+        //}
 
-        private void hookRemoveCdcProps()
-        {
-            ExecuteCdpCommand(
-                "Page.addScriptToEvaluateOnNewDocument",
-                new Dictionary<string, object>
-                {
-                    ["source"] =
-                    @"
-                        let objectToInspect = window,
-                            result = [];
-                        while(objectToInspect !== null) 
-                        { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
-                          objectToInspect = Object.getPrototypeOf(objectToInspect); }
-                        result.forEach(p => p.match(/.+_.+_(Array|Promise|Symbol)/ig)
-                                            &&delete window[p]&&console.log('removed',p))
-                     "
-                });
-        }
+        //private void hookRemoveCdcProps()
+        //{
+        //    ExecuteCdpCommand(
+        //        "Page.addScriptToEvaluateOnNewDocument",
+        //        new Dictionary<string, object>
+        //        {
+        //            ["source"] =
+        //            @"
+        //                let objectToInspect = window,
+        //                    result = [];
+        //                while(objectToInspect !== null) 
+        //                { result = result.concat(Object.getOwnPropertyNames(objectToInspect));
+        //                  objectToInspect = Object.getPrototypeOf(objectToInspect); }
+        //                result.forEach(p => p.match(/^([a-zA-Z]){27}(Array|Promise|Symbol)$/ig)
+        //                                    &&delete window[p]&&console.log('removed',p))
+        //             "
+        //        });
+        //}
 
         private static string callFindChromeExecutable()
         {
@@ -354,7 +413,7 @@ namespace SeleniumUndetectedChromeDriver
             var candidates = new List<string>();
 
             foreach (var item in new[] {
-                "PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"
+                "PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA", "PROGRAMW6432"
             })
             {
                 foreach (var subitem in new[] {
