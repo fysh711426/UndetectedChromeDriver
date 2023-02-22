@@ -18,9 +18,7 @@ namespace SeleniumUndetectedChromeDriver
         public void Auto()
         {
             if (!isBinaryPatched())
-            {
                 patchExe();
-            }
         }
 
         private bool isBinaryPatched()
@@ -37,59 +35,59 @@ namespace SeleniumUndetectedChromeDriver
                     var line = reader.ReadLine();
                     if (line == null)
                         break;
-                    if (line.Contains("{window.cdc_"))
-                        return false;
+                    if (line.Contains("undetected chromedriver"))
+                        return true;
                 }
-                return true;
+                return false;
             }
         }
 
-        private int patchExe()
+        private void patchExe()
         {
-            var linect = 0;
-            var replacement = "{}";
-
             using (var fs = new FileStream(_driverExecutablePath,
                 FileMode.Open, FileAccess.ReadWrite))
             {
-                var buffer = new byte[1];
-                var check = new StringBuilder();
-                var read = 0;
+                var buffer = new byte[1024];
+                var stringBuilder = new StringBuilder();
 
+                var read = 0;
                 while (true)
                 {
                     read = fs.Read(buffer, 0, buffer.Length);
                     if (read == 0)
                         break;
-
-                    check.Append((char)buffer[0]);
+                    stringBuilder.Append(
+                        Encoding.GetEncoding("ISO-8859-1").GetString(buffer, 0, read));
                 }
 
-                Match m = Regex.Match(check.ToString(), @"\{window\.cdc.*?;\}");
-
-                if (m.Success)
+                var content = stringBuilder.ToString();
+                var match = Regex.Match(content.ToString(), @"\{window\.cdc.*?;\}");
+                if (match.Success)
                 {
-                    check = check.Replace(m.Value, replacement + (new string(' ', m.Value.Length - replacement.Length)));
+                    var target = match.Value;
+                    var newTarget = "{console.log(\"undetected chromedriver 1337!\")}"
+                        .PadRight(target.Length, ' ');
+                    var newContent = content.Replace(target, newTarget);
+
                     fs.Seek(0, SeekOrigin.Begin);
-                    var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(check.ToString());
+                    var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(newContent);
                     fs.Write(bytes, 0, bytes.Length);
-                    linect = m.Index;
                 }
             }
-
-            return linect;
         }
 
         private string genRandomCdc()
         {
             var chars = "abcdefghijklmnopqrstuvwxyz";
             var random = new Random();
-            var cdc = Enumerable.Repeat(chars, 26)
+            var cdc = Enumerable.Repeat(chars, 27)
                 .Select(s => s[random.Next(s.Length)]).ToArray();
-            for (var i = 4; i <= 6; i++)
-                cdc[cdc.Length - i] = char.ToUpper(cdc[cdc.Length - i]);
-            cdc[2] = cdc[0];
-            cdc[3] = '_';
+            //var cdc = Enumerable.Repeat(chars, 26)
+            //    .Select(s => s[random.Next(s.Length)]).ToArray();
+            //for (var i = 4; i <= 6; i++)
+            //    cdc[cdc.Length - i] = char.ToUpper(cdc[cdc.Length - i]);
+            //cdc[2] = cdc[0];
+            //cdc[3] = '_';
             return new string(cdc);
         }
     }
