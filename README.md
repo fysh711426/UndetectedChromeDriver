@@ -167,12 +167,20 @@ using var driver2 = UndetectedChromeDriver.Create(
 　Set browser executable file path.  
 　default using $PATH to execute.  
 
+* **port:** int, optional, default: 0  
+　Set the port used by the chromedriver executable. (not debugger port)
+
 * **logLevel:** int, optional, default: 0  
 　Set chrome logLevel.  
 
 * **headless:** bool, optional, default: false  
 　Specifies to use the browser in headless mode.  
 　warning: This reduces undetectability and is not fully supported.  
+
+* **noSandbox:** bool, optional, default: true  
+　Set use --no-sandbox, and suppress the "unsecure option" status bar.  
+　this option has a default of true since many people seem to run this as root(....) ,  
+　and chrome does not start when running as root without using --no-sandbox flag.  
 
 * **suppressWelcome:** bool, optional, default: true  
 　First launch using the welcome page.  
