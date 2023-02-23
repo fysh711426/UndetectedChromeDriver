@@ -12,67 +12,86 @@ namespace SeleniumUndetectedChromeDriver
         // refer: https://swimburger.net/blog/dotnet/download-the-right-chromedriver-version-and-keep-it-up-to-date-on-windows-linux-macos-using-csharp-dotnet
         public async Task<string> GetVersion()
         {
-#if (NET48 || NET47 || NET46 || NET45)
-            var executablePath = findChromeExecutable();
+            var executablePath = GetExecutablePath();
             if (executablePath == null)
                 throw new Exception("Not found chrome.exe.");
-            return FileVersionInfo.GetVersionInfo(executablePath).FileVersion;
+            
+#if (NET48 || NET47 || NET46 || NET45)
+            return await Task.Run(()=>
+            {
+                return FileVersionInfo.GetVersionInfo(executablePath).FileVersion
+                    ?? throw new Exception("Chrome version not found in chrome.exe.");
+            });
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var executablePath = findChromeExecutable();
-                if (executablePath == null)
-                    throw new Exception("Not found chrome.exe.");
-                return FileVersionInfo.GetVersionInfo(executablePath).FileVersion;
+                return FileVersionInfo.GetVersionInfo(executablePath).FileVersion
+                    ?? throw new Exception("Chrome version not found in chrome.exe.");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 var args = "--product-version";
-                var executablePath = findChromeExecutableLinux();
-
                 var info = new ProcessStartInfo(executablePath, args);
                 info.CreateNoWindow = true;
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;
                 info.RedirectStandardError = true;
                 var process = Process.Start(info);
+                if (process == null)
+                    throw new Exception("Process start error.");
+                try
+                {
+                    var output = await process.StandardOutput.ReadToEndAsync();
+                    var error = await process.StandardError.ReadToEndAsync();
+                    await process.WaitForExitPatchAsync();
+                    process.Kill();
+                    process.Dispose();
 
-                var output = await process.StandardOutput.ReadToEndAsync();
-                var error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitPatchAsync();
-                process.Kill();
-
-                if (!string.IsNullOrEmpty(error))
-                    throw new Exception(error);
-                return output;
+                    if (!string.IsNullOrEmpty(error))
+                        throw new Exception(error);
+                    return output;
+                }
+                catch
+                {
+                    process.Dispose();
+                    throw;
+                }
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 var args = "--version";
-                var executablePath = findChromeExecutableMacos();
-
                 var info = new ProcessStartInfo(executablePath, args);
                 info.CreateNoWindow = true;
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;
                 info.RedirectStandardError = true;
                 var process = Process.Start(info);
+                if (process == null)
+                    throw new Exception("Process start error.");
+                try
+                {
+                    var output = await process.StandardOutput.ReadToEndAsync();
+                    var error = await process.StandardError.ReadToEndAsync();
+                    await process.WaitForExitPatchAsync();
+                    process.Kill();
+                    process.Dispose();
 
-                var output = await process.StandardOutput.ReadToEndAsync();
-                var error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitPatchAsync();
-                process.Kill();
-
-                if (!string.IsNullOrEmpty(error))
-                    throw new Exception(error);
-                return output.Replace("Google Chrome ", "");
+                    if (!string.IsNullOrEmpty(error))
+                        throw new Exception(error);
+                    return output.Replace("Google Chrome ", "");
+                }
+                catch
+                {
+                    process.Dispose();
+                    throw;
+                }
             }
             else
                 throw new PlatformNotSupportedException("Your operating system is not supported.");
 #endif
         }
 
-        public string GetExecutablePath()
+        public string? GetExecutablePath()
         {
             var result = null as string;
 #if (NET48 || NET47 || NET46 || NET45)
@@ -88,7 +107,7 @@ namespace SeleniumUndetectedChromeDriver
             return result;
         }
 
-        private static string findChromeExecutable()
+        private static string? findChromeExecutable()
         {
             var candidates = new List<string>();
 
@@ -114,12 +133,15 @@ namespace SeleniumUndetectedChromeDriver
             return null;
         }
 
-        private static string findChromeExecutableLinux()
+        private static string? findChromeExecutableLinux()
         {
             var candidates = new List<string>();
 
-            var variables = Environment.GetEnvironmentVariable("PATH")
-                .Split(Path.PathSeparator);
+            var environmentPATH = Environment.GetEnvironmentVariable("PATH");
+            if (environmentPATH == null)
+                throw new Exception("Not found environment PATH.");
+
+            var variables = environmentPATH.Split(Path.PathSeparator);
             foreach (var item in variables)
             {
                 foreach (var subitem in new[] {
@@ -140,12 +162,15 @@ namespace SeleniumUndetectedChromeDriver
             return null;
         }
 
-        private static string findChromeExecutableMacos()
+        private static string? findChromeExecutableMacos()
         {
             var candidates = new List<string>();
 
-            var variables = Environment.GetEnvironmentVariable("PATH")
-                .Split(Path.PathSeparator);
+            var environmentPATH = Environment.GetEnvironmentVariable("PATH");
+            if (environmentPATH == null)
+                throw new Exception("Not found environment PATH.");
+
+            var variables = environmentPATH.Split(Path.PathSeparator);
             foreach (var item in variables)
             {
                 foreach (var subitem in new[] {
