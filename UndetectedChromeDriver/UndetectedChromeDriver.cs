@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SeleniumUndetectedChromeDriver
 {
@@ -196,7 +199,7 @@ namespace SeleniumUndetectedChromeDriver
             if (browser == null)
                 throw new Exception("Browser process start error.");
             //----- Start Process -----
-
+            
             try
             {
                 //----- Create ChromeDriver -----
@@ -231,19 +234,11 @@ namespace SeleniumUndetectedChromeDriver
         // override this.Navigate().GoToUrl()
         public void GoToUrl(string url)
         {
-            try
-            {
-                if (_headless)
-                    configureHeadless();
-                //if (hasCdcProps())
-                //    hookRemoveCdcProps();
-                Navigate().GoToUrl(url);
-            }
-            catch
-            {
-                Dispose();
-                throw;
-            }
+            if (_headless)
+                configureHeadless();
+            //if (hasCdcProps())
+            //    hookRemoveCdcProps();
+            Navigate().GoToUrl(url);
         }
 
         private void configureHeadless()
@@ -384,6 +379,62 @@ namespace SeleniumUndetectedChromeDriver
             }
         }
 
+        /// <summary>
+        /// This can be useful in case of heavy detection methods.
+        /// -stops the chromedriver service which runs in the background
+        /// -starts the chromedriver service which runs in the background
+        /// -recreate session
+        /// </summary>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task Reconnect(int timeout = 100)
+        {
+            if (_service == null)
+                throw new Exception("ChromeDriverService cannot be null.");
+
+            var baseType = _service.GetType().BaseType?.BaseType;
+            var methodInfo = baseType?.GetMethod("Stop",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            if (methodInfo == null)
+                throw new Exception(@"Not found ChromeDriverService.Stop method.");
+
+            try
+            {
+                methodInfo.Invoke(_service, new object[] { });
+            }
+            catch { }
+            await Task.Delay(timeout);
+
+            try
+            {
+                _service.Start();
+            }
+            catch { }
+
+            try
+            {
+                StartSession();
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Differentiates from the regular method in that it does not
+        /// require a capabilities argument.The capabilities are automatically
+        /// recreated from the options at creation time.
+        /// </summary>
+        /// <param name="capabilities"></param>
+        /// <exception cref="Exception"></exception>
+        public new void StartSession(ICapabilities? capabilities = null)
+        {
+            if (_options == null)
+                throw new Exception("ChromeOptions cannot be null.");
+            if (capabilities == null)
+                capabilities = _options.ToCapabilities();
+            base.StartSession(capabilities);
+        }
+
         //private bool hasCdcProps()
         //{
         //    var props = (ReadOnlyCollection<object>)ExecuteScript(
@@ -440,7 +491,8 @@ namespace SeleniumUndetectedChromeDriver
         {
             //_service.Dispose();
             base.Dispose(disposing);
-            disposeBrowser(_browser, _userDataDir, _keepUserDataDir);
+            if (disposing)
+                disposeBrowser(_browser, _userDataDir, _keepUserDataDir);
         }
 
         private static void disposeBrowser(
@@ -463,7 +515,10 @@ namespace SeleniumUndetectedChromeDriver
                     try
                     {
                         if (userDataDir != null)
-                            Directory.Delete(userDataDir, true);
+                        {
+                            if (Directory.Exists(userDataDir))
+                                Directory.Delete(userDataDir, true);
+                        }
                         break;
                     }
                     catch (Exception)

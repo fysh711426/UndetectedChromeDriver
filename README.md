@@ -21,27 +21,27 @@ using SeleniumUndetectedChromeDriver;
 ```
 
 ```C#
-using var driver = UndetectedChromeDriver.Create(
-    driverExecutablePath: @"D:\xxx\chromedriver.exe");
-
-driver.GoToUrl("https://nowsecure.nl");
+using (var driver = UndetectedChromeDriver.Create(
+    driverExecutablePath: @"D:\xxx\chromedriver.exe"))
+{
+    driver.GoToUrl("https://nowsecure.nl");
+}
 ```  
 
 Automatically download the chrome driver.  
 
 ```C#
-using var driver = UndetectedChromeDriver.Create(
-    ...
+using (var driver = UndetectedChromeDriver.Create(
     driverExecutablePath: 
-        await new ChromeDriverInstaller().Auto());
+        await new ChromeDriverInstaller().Auto()))
 ```  
 
 If your chrome is not in default path, you can use browserExecutablePath to set.  
 
 ```C#
-using var driver = UndetectedChromeDriver.Create(
+using (var driver = UndetectedChromeDriver.Create(
     ...
-    browserExecutablePath: @"C:\xxx\chrome.exe");
+    browserExecutablePath: @"C:\xxx\chrome.exe"))
 ```  
 
 ### Options example  
@@ -50,9 +50,9 @@ using var driver = UndetectedChromeDriver.Create(
 var options = new ChromeOptions();
 options.AddArgument("--mute-audio");
 
-using var driver = UndetectedChromeDriver.Create(
+using (var driver = UndetectedChromeDriver.Create(
     ...
-    options: options);
+    options: options))
 ```  
 
 Options cannot be shared, you need to create a new one every time.  
@@ -74,9 +74,9 @@ var driver2 = UndetectedChromeDriver.Create(
 
 ```C#
 var userDataDir = @"D:\xxx\ChromeUserData";
-using var driver = UndetectedChromeDriver.Create(
+using (var driver = UndetectedChromeDriver.Create(
     ...
-    userDataDir: userDataDir);
+    userDataDir: userDataDir))
 ```  
 
 ### WPF example  
@@ -130,9 +130,9 @@ var prefs = new Dictionary<string, object>
         ")
 };
 
-using var driver = UndetectedChromeDriver.Create(
+using (var driver = UndetectedChromeDriver.Create(
     ...
-    prefs: prefs);
+    prefs: prefs))
 ```  
 
 ### Multiple instance example  
@@ -146,15 +146,15 @@ var options2 = new ChromeOptions();
 var userDataDir1 = @"D:\xxx\ChromeUserData1";
 var userDataDir2 = @"D:\xxx\ChromeUserData2";
 
-using var driver1 = UndetectedChromeDriver.Create(
+using (var driver1 = UndetectedChromeDriver.Create(
     ...
     options: options1,
-    userDataDir: userDataDir1);
+    userDataDir: userDataDir1))
 
-using var driver2 = UndetectedChromeDriver.Create(
+using (var driver2 = UndetectedChromeDriver.Create(
     ...
     options: options2,
-    userDataDir: userDataDir2);
+    userDataDir: userDataDir2))
 ```
 
 ---  
@@ -230,9 +230,9 @@ var prefs = new Dictionary<string, object>
     ["profile.default_content_setting_values.geolocation"] = 1
 };
 
-using var driver = UndetectedChromeDriverCreate(
+using (var driver = UndetectedChromeDriverCreate(
     ...
-    prefs: prefs);
+    prefs: prefs))
 ```
 
 ```C#
@@ -271,9 +271,9 @@ var prefs = new Dictionary<string, object>
     ["webrtc.multiple_routes_enabled"] = false,
     ["webrtc.nonproxied_udp_enabled"] = false
 };
-using var driver = UndetectedChromeDriverCreate(
+using (var driver = UndetectedChromeDriverCreate(
     ...
-    prefs: prefs);
+    prefs: prefs))
 ```
 
 ```C#
@@ -309,13 +309,13 @@ devTools.Network.RequestWillBeSent += (sender, e) =>
 ### Suppress initial information  
 
 ```C#
-using var driver = UndetectedChromeDriver.Create(
+using (var driver = UndetectedChromeDriver.Create(
     ...
     configureService: (service) =>
     {
         // Suppress chrome driver initial information.
         service.SuppressInitialDiagnosticInformation = true;
-    });
+    }))
 ```
 
 ### Get cookies  
