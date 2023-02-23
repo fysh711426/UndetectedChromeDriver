@@ -66,9 +66,9 @@ namespace SeleniumUndetectedChromeDriver
             Dictionary<string, object>? prefs = null,
             Action<ChromeDriverService>? configureService = null)
         {
-            var executable = new ChromeExecutable();
-
             //----- Patcher ChromeDriver -----
+            if (driverExecutablePath == null)
+                throw new Exception("Parameter driverExecutablePath is required.");
             var patcher = new Patcher(
                 driverExecutablePath);
             patcher.Auto();
@@ -119,6 +119,7 @@ namespace SeleniumUndetectedChromeDriver
             //----- BinaryLocation -----
             if (browserExecutablePath == null)
             {
+                var executable = new ChromeExecutable();
                 browserExecutablePath = executable.GetExecutablePath();
                 if (browserExecutablePath == null)
                     throw new Exception("Not found chrome.exe.");
@@ -139,7 +140,9 @@ namespace SeleniumUndetectedChromeDriver
             //----- Headless -----
             if (headless)
             {
-                var version = executable.GetVersion().GetAwaiter().GetResult();
+                var installer = new ChromeDriverInstaller();
+                var version = installer.GetDriverVersion(driverExecutablePath)
+                    .GetAwaiter().GetResult();
                 var versionMain = version.Substring(0, version.IndexOf('.'));
                 if (int.Parse(versionMain) < 108)
                     options.AddArguments("--headless=chrome");
@@ -197,8 +200,6 @@ namespace SeleniumUndetectedChromeDriver
             try
             {
                 //----- Create ChromeDriver -----
-                if (driverExecutablePath == null)
-                    throw new Exception("driverExecutablePath is required.");
                 var service = ChromeDriverService.CreateDefaultService(
                     Path.GetDirectoryName(driverExecutablePath),
                     Path.GetFileName(driverExecutablePath));

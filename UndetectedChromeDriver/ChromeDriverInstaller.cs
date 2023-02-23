@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -126,6 +127,7 @@ namespace SeleniumUndetectedChromeDriver
                     var error = await process.StandardError.ReadToEndAsync();
                     await process.WaitForExitPatchAsync();
                     process.Kill();
+                    process.Dispose();
 
                     if (!string.IsNullOrEmpty(error))
                         throw new Exception("Failed to make chromedriver executable.");
@@ -138,6 +140,39 @@ namespace SeleniumUndetectedChromeDriver
             }
 #endif
             return driverPath;
+        }
+
+        public async Task<string> GetDriverVersion(string driverExecutablePath)
+        {
+            if (driverExecutablePath == null)
+                throw new Exception("Parameter driverExecutablePath is required.");
+            
+            var args = "--version";
+            var info = new ProcessStartInfo(driverExecutablePath, args);
+            info.CreateNoWindow = true;
+            info.UseShellExecute = false;
+            info.RedirectStandardOutput = true;
+            info.RedirectStandardError = true;
+            var process = Process.Start(info);
+            if (process == null)
+                throw new Exception("Process start error.");
+            try
+            {
+                var version = await process.StandardOutput.ReadToEndAsync();
+                var error = await process.StandardError.ReadToEndAsync();
+                await process.WaitForExitPatchAsync();
+                process.Kill();
+                process.Dispose();
+
+                if (!string.IsNullOrEmpty(error))
+                    throw new Exception("Failed to execute {driverName} --version.");
+                return version.Split(' ').Skip(1).First();
+            }
+            catch
+            {
+                process.Dispose();
+                throw;
+            }
         }
     }
 }
