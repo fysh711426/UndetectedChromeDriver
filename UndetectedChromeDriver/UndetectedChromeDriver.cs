@@ -20,11 +20,11 @@ namespace SeleniumUndetectedChromeDriver
             TimeSpan commandTimeout) : base(service, options, commandTimeout) { }
 
         private bool _headless = false;
-        private ChromeOptions _options = null;
-        private ChromeDriverService _service = null;
-        private Process _browser = null;
+        private ChromeOptions? _options = null;
+        private ChromeDriverService? _service = null;
+        private Process? _browser = null;
         private bool _keepUserDataDir = true;
-        private string _userDataDir = null;
+        private string? _userDataDir = null;
 
         /// <summary>
         /// Creates a new instance of the chrome driver.
@@ -52,10 +52,10 @@ namespace SeleniumUndetectedChromeDriver
         /// <param name="configureService">Initialize configuration ChromeDriverService.</param>
         /// <returns>UndetectedChromeDriver</returns>
         public static UndetectedChromeDriver Create(
-            ChromeOptions options = null,
-            string userDataDir = null,
-            string driverExecutablePath = null,
-            string browserExecutablePath = null,
+            ChromeOptions? options = null,
+            string? userDataDir = null,
+            string? driverExecutablePath = null,
+            string? browserExecutablePath = null,
             int port = 0,
             int logLevel = 0,
             bool headless = false,
@@ -63,8 +63,8 @@ namespace SeleniumUndetectedChromeDriver
             bool suppressWelcome = true,
             bool hideCommandPromptWindow = false,
             TimeSpan? commandTimeout = null,
-            Dictionary<string, object> prefs = null,
-            Action<ChromeDriverService> configureService = null)
+            Dictionary<string, object>? prefs = null,
+            Action<ChromeDriverService>? configureService = null)
         {
             //----- Patcher ChromeDriver -----
             var patcher = new Patcher(
@@ -400,8 +400,10 @@ namespace SeleniumUndetectedChromeDriver
             {
                 var localEP = new IPEndPoint(IPAddress.Any, 0);
                 socket.Bind(localEP);
-                localEP = (IPEndPoint)socket.LocalEndPoint;
-                return localEP.Port;
+                var freeEP = (IPEndPoint?)socket.LocalEndPoint;
+                if (freeEP == null)
+                    throw new Exception("Not found free port.");
+                return freeEP.Port;
             }
             finally
             {
@@ -416,7 +418,7 @@ namespace SeleniumUndetectedChromeDriver
 
             try
             {
-                _browser.Kill();
+                _browser?.Kill();
             }
             catch (Exception) { }
 
@@ -426,7 +428,8 @@ namespace SeleniumUndetectedChromeDriver
                 {
                     try
                     {
-                        Directory.Delete(_userDataDir, true);
+                        if (_userDataDir != null)
+                            Directory.Delete(_userDataDir, true);
                         break;
                     }
                     catch (Exception)
@@ -461,8 +464,7 @@ namespace SeleniumUndetectedChromeDriver
             }
 
             // merge key value into dict
-            void undotMerge(string key, object value, 
-                Dictionary<string, object> dict)
+            void undotMerge(string key, object value, Dictionary<string, object> dict)
             {
                 if (key.Contains("."))
                 {
@@ -471,7 +473,7 @@ namespace SeleniumUndetectedChromeDriver
                     var k2 = split[1];
                     if (!dict.ContainsKey(k1))
                         dict[k1] = new Dictionary<string, object>();
-                    undotMerge(k2, value, dict[k1] as Dictionary<string, object>);
+                    undotMerge(k2, value, (Dictionary<string, object>)dict[k1]);
                     return;
                 }
                 dict[key] = value;

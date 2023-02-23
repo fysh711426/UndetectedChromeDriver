@@ -8,15 +8,16 @@ namespace SeleniumUndetectedChromeDriver
 {
     public class Patcher
     {
-        private string _driverExecutablePath;
-        public Patcher(
-            string driverExecutablePath = null)
+        private string? _driverExecutablePath;
+        public Patcher(string? driverExecutablePath = null)
         {
             _driverExecutablePath = driverExecutablePath;
         }
 
         public void Auto()
         {
+            if (_driverExecutablePath == null)
+                throw new Exception("Parameter driverExecutablePath is required.");
             if (!isBinaryPatched())
                 patchExe();
         }
@@ -24,7 +25,7 @@ namespace SeleniumUndetectedChromeDriver
         private bool isBinaryPatched()
         {
             if (_driverExecutablePath == null)
-                throw new Exception("driverExecutablePath is required.");
+                throw new Exception("Parameter driverExecutablePath is required.");
 
             using (var fs = new FileStream(_driverExecutablePath,
                 FileMode.Open, FileAccess.Read))
@@ -44,6 +45,9 @@ namespace SeleniumUndetectedChromeDriver
 
         private void patchExe()
         {
+            if (_driverExecutablePath == null)
+                throw new Exception("Parameter driverExecutablePath is required.");
+
             using (var fs = new FileStream(_driverExecutablePath,
                 FileMode.Open, FileAccess.ReadWrite))
             {
