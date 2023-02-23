@@ -393,8 +393,7 @@ namespace SeleniumUndetectedChromeDriver
             if (_service == null)
                 throw new Exception("ChromeDriverService cannot be null.");
 
-            var baseType = _service.GetType().BaseType?.BaseType;
-            var methodInfo = baseType?.GetMethod("Stop",
+            var methodInfo = typeof(DriverService).GetMethod("Stop",
                 BindingFlags.NonPublic | BindingFlags.Instance);
             if (methodInfo == null)
                 throw new Exception(@"Not found ChromeDriverService.Stop method.");
