@@ -86,6 +86,28 @@ namespace SeleniumUndetectedChromeDriver
             if (!Directory.Exists(dirPath))
                 Directory.CreateDirectory(dirPath);
 
+            if (force)
+            {
+                void deleteDriver()
+                {
+                    if (File.Exists(driverPath))
+                        File.Delete(driverPath);
+                }
+                try
+                {
+                    deleteDriver();
+                }
+                catch
+                {
+                    try
+                    {
+                        await forceKillInstances(driverPath);
+                        deleteDriver();
+                    }
+                    catch { }
+                }
+            }
+
             // Use the URL created in the last step to retrieve a small file containing the version of ChromeDriver to use. For example, the above URL will get your a file containing "72.0.3626.69". (The actual number may change in the future, of course.)
             // Use the version number retrieved from the previous step to construct the URL to download ChromeDriver. With version 72.0.3626.69, the URL would be "https://chromedriver.storage.googleapis.com/index.html?path=72.0.3626.69/".
             var zipResponse = await httpClient.GetAsync($"{driverVersion}/{zipName}");
@@ -167,6 +189,54 @@ namespace SeleniumUndetectedChromeDriver
                 if (!string.IsNullOrEmpty(error))
                     throw new Exception("Failed to execute {driverName} --version.");
                 return version.Split(' ').Skip(1).First();
+            }
+            catch
+            {
+                process.Dispose();
+                throw;
+            }
+        }
+
+        private async Task forceKillInstances(string driverExecutablePath)
+        {
+            var exeName = Path.GetFileName(driverExecutablePath);
+
+            var cmd = "";
+            var args = "";
+
+#if (NET48 || NET47 || NET46 || NET45)
+            cmd = "taskkill";
+            args = $"/f /im {exeName}";
+#else
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                cmd = "taskkill";
+                args = $"/f /im {exeName}";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                cmd = "kill";
+                args = $"-f -9 $(pidof {exeName})";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                cmd = "kill";
+                args = $"-f -9 $(pidof {exeName})";
+            }
+#endif
+            var info = new ProcessStartInfo(cmd, args);
+            info.CreateNoWindow = true;
+            info.UseShellExecute = false;
+            info.RedirectStandardOutput = true;
+            info.RedirectStandardError = true;
+            var process = Process.Start(info);
+            if (process == null)
+                throw new Exception("Process start error.");
+            try
+            {
+                await process.WaitForExitPatchAsync();
+                process.Kill();
+                process.Dispose();
             }
             catch
             {
