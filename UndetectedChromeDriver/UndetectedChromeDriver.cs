@@ -66,6 +66,8 @@ namespace SeleniumUndetectedChromeDriver
             Dictionary<string, object>? prefs = null,
             Action<ChromeDriverService>? configureService = null)
         {
+            var executable = new ChromeExecutable();
+
             //----- Patcher ChromeDriver -----
             var patcher = new Patcher(
                 driverExecutablePath);
@@ -117,7 +119,6 @@ namespace SeleniumUndetectedChromeDriver
             //----- BinaryLocation -----
             if (browserExecutablePath == null)
             {
-                var executable = new ChromeExecutable();
                 browserExecutablePath = executable.GetExecutablePath();
                 if (browserExecutablePath == null)
                     throw new Exception("Not found chrome.exe.");
@@ -138,7 +139,12 @@ namespace SeleniumUndetectedChromeDriver
             //----- Headless -----
             if (headless)
             {
-                options.AddArguments("--headless=new");
+                var version = executable.GetVersion().GetAwaiter().GetResult();
+                var versionMain = version.Substring(0, version.IndexOf('.'));
+                if (int.Parse(versionMain) < 108)
+                    options.AddArguments("--headless=chrome");
+                else
+                    options.AddArguments("--headless=new");
             }
             //----- Headless -----
 
@@ -184,41 +190,59 @@ namespace SeleniumUndetectedChromeDriver
             info.RedirectStandardOutput = true;
             info.RedirectStandardError = true;
             var browser = Process.Start(info);
+            if (browser == null)
+                throw new Exception("Browser process start error.");
             //----- Start Process -----
 
-            //----- Create ChromeDriver -----
-            if (driverExecutablePath == null)
-                throw new Exception("driverExecutablePath is required.");
-            var service = ChromeDriverService.CreateDefaultService(
-                Path.GetDirectoryName(driverExecutablePath),
-                Path.GetFileName(driverExecutablePath));
-            service.HideCommandPromptWindow = hideCommandPromptWindow;
-            if (port != 0)
-                service.Port = port;
-            if (configureService != null)
-                configureService(service);
-            if (commandTimeout == null)
-                commandTimeout = TimeSpan.FromSeconds(60);
-            var driver = new UndetectedChromeDriver(service, options, commandTimeout.Value);
-            //----- Create ChromeDriver -----
+            try
+            {
+                //----- Create ChromeDriver -----
+                if (driverExecutablePath == null)
+                    throw new Exception("driverExecutablePath is required.");
+                var service = ChromeDriverService.CreateDefaultService(
+                    Path.GetDirectoryName(driverExecutablePath),
+                    Path.GetFileName(driverExecutablePath));
+                service.HideCommandPromptWindow = hideCommandPromptWindow;
+                if (port != 0)
+                    service.Port = port;
+                if (configureService != null)
+                    configureService(service);
+                if (commandTimeout == null)
+                    commandTimeout = TimeSpan.FromSeconds(60);
+                var driver = new UndetectedChromeDriver(service, options, commandTimeout.Value);
+                //----- Create ChromeDriver -----
 
-            driver._headless = headless;
-            driver._options = options;
-            driver._service = service;
-            driver._browser = browser;
-            driver._keepUserDataDir = keepUserDataDir;
-            driver._userDataDir = userDataDir;
-            return driver;
+                driver._headless = headless;
+                driver._options = options;
+                driver._service = service;
+                driver._browser = browser;
+                driver._keepUserDataDir = keepUserDataDir;
+                driver._userDataDir = userDataDir;
+                return driver;
+            }
+            catch
+            {
+                disposeBrowser(browser, userDataDir, keepUserDataDir);
+                throw;
+            }
         }
 
         // override this.Navigate().GoToUrl()
         public void GoToUrl(string url)
         {
-            if (_headless)
-                configureHeadless();
-            //if (hasCdcProps())
-            //    hookRemoveCdcProps();
-            Navigate().GoToUrl(url);
+            try
+            {
+                if (_headless)
+                    configureHeadless();
+                //if (hasCdcProps())
+                //    hookRemoveCdcProps();
+                Navigate().GoToUrl(url);
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
         }
 
         private void configureHeadless()
@@ -415,21 +439,30 @@ namespace SeleniumUndetectedChromeDriver
         {
             //_service.Dispose();
             base.Dispose(disposing);
+            disposeBrowser(_browser, _userDataDir, _keepUserDataDir);
+        }
 
+        private static void disposeBrowser(
+            Process? browser, string? userDataDir, bool keepUserDataDir)
+        {
             try
             {
-                _browser?.Kill();
+                if (browser != null)
+                {
+                    browser.Kill();
+                    browser.Dispose();
+                }
             }
             catch (Exception) { }
 
-            if (!_keepUserDataDir)
+            if (!keepUserDataDir)
             {
                 for (var i = 0; i < 5; i++)
                 {
                     try
                     {
-                        if (_userDataDir != null)
-                            Directory.Delete(_userDataDir, true);
+                        if (userDataDir != null)
+                            Directory.Delete(userDataDir, true);
                         break;
                     }
                     catch (Exception)

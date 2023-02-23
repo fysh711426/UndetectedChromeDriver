@@ -27,6 +27,15 @@ using var driver = UndetectedChromeDriver.Create(
 driver.GoToUrl("https://nowsecure.nl");
 ```  
 
+Automatically download the chrome driver.  
+
+```C#
+using var driver = UndetectedChromeDriver.Create(
+    ...
+    driverExecutablePath: 
+        await new ChromeDriverInstaller().Auto());
+```  
+
 If your chrome is not in default path, you can use browserExecutablePath to set.  
 
 ```C#
