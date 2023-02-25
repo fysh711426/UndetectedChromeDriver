@@ -54,7 +54,7 @@ namespace SeleniumUndetectedChromeDriver
                 }
                 else
                 {
-                    zipName = $"chromedriver_mac64.zip";
+                    zipName = "chromedriver_mac64.zip";
                 }
                 
                 driverName = $"chromedriver_{version}";
