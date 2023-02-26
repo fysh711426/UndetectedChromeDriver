@@ -7,7 +7,7 @@
     <PackageId>Selenium.UndetectedChromeDriver</PackageId>
     <Description>This repo is C# implementation of undetected_chromedriver.
 It optimizes Selenium chromedriver to avoid being detected by anti-bot services.</Description>
-    <Version>1.0.9</Version>
+    <Version>1.1.0</Version>
     <PackageProjectUrl>https://github.com/fysh711426/UndetectedChromeDriver</PackageProjectUrl>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageLicenseFile></PackageLicenseFile>
