@@ -7,31 +7,32 @@ using System.Threading.Tasks;
 
 namespace SeleniumUndetectedChromeDriver
 {
-    public class ChromeExecutable
+    internal class ChromeExecutable
     {
         // refer: https://swimburger.net/blog/dotnet/download-the-right-chromedriver-version-and-keep-it-up-to-date-on-windows-linux-macos-using-csharp-dotnet
-        public async Task<string> GetVersion()
+        public async Task<string> GetVersion(string? browserExecutablePath = null)
         {
-            var executablePath = GetExecutablePath();
-            if (executablePath == null)
+            if (browserExecutablePath == null)
+                browserExecutablePath = GetExecutablePath();
+            if (browserExecutablePath == null)
                 throw new Exception("Not found chrome.exe.");
-            
+
 #if (NET48 || NET47 || NET46 || NET45)
             return await Task.Run(()=>
             {
-                return FileVersionInfo.GetVersionInfo(executablePath).FileVersion
+                return FileVersionInfo.GetVersionInfo(browserExecutablePath).FileVersion
                     ?? throw new Exception("Chrome version not found in chrome.exe.");
             });
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return FileVersionInfo.GetVersionInfo(executablePath).FileVersion
+                return FileVersionInfo.GetVersionInfo(browserExecutablePath).FileVersion
                     ?? throw new Exception("Chrome version not found in chrome.exe.");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 var args = "--product-version";
-                var info = new ProcessStartInfo(executablePath, args);
+                var info = new ProcessStartInfo(browserExecutablePath, args);
                 info.CreateNoWindow = true;
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;
@@ -60,7 +61,7 @@ namespace SeleniumUndetectedChromeDriver
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 var args = "--version";
-                var info = new ProcessStartInfo(executablePath, args);
+                var info = new ProcessStartInfo(browserExecutablePath, args);
                 info.CreateNoWindow = true;
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;

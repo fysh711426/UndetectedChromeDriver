@@ -12,14 +12,17 @@ namespace SeleniumUndetectedChromeDriver
     // refer: https://swimburger.net/blog/dotnet/download-the-right-chromedriver-version-and-keep-it-up-to-date-on-windows-linux-macos-using-csharp-dotnet
     public class ChromeDriverInstaller
     {
-        public async Task<string> Auto(
-            string? version = null, bool force = false)
+        public async Task<string> Auto(string? browserExecutablePath = null, bool force = false)
         {
-            if (version == null)
-            {
-                var executable = new ChromeExecutable();
-                version = await executable.GetVersion();
-            }
+            var version = await new ChromeExecutable()
+                .GetVersion(browserExecutablePath);
+            return await Install(version, force);
+        }
+
+        public async Task<string> Install(string version, bool force = false)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+                throw new Exception("Parameter version is required.");
             version = version.Substring(0, version.LastIndexOf('.'));
 
             var zipName = "";
@@ -28,21 +31,21 @@ namespace SeleniumUndetectedChromeDriver
             var ext = "";
 
 #if (NET48 || NET47 || NET46 || NET45)
-            zipName = $"chromedriver_win32.zip";
+            zipName = "chromedriver_win32.zip";
             driverName = $"chromedriver_{version}.exe";
             tempPath = "AppData/Roaming/UndetectedChromeDriver";
             ext = ".exe";
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                zipName = $"chromedriver_win32.zip";
+                zipName = "chromedriver_win32.zip";
                 driverName = $"chromedriver_{version}.exe";
                 tempPath = "AppData/Roaming/UndetectedChromeDriver";
                 ext = ".exe";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                zipName = $"chromedriver_linux64.zip";
+                zipName = "chromedriver_linux64.zip";
                 driverName = $"chromedriver_{version}";
                 tempPath = ".local/share/UndetectedChromeDriver";
             }
