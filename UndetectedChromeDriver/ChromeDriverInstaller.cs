@@ -51,15 +51,7 @@ namespace SeleniumUndetectedChromeDriver
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
-                {
-                    zipName = "chromedriver_mac_arm64.zip";
-                }
-                else
-                {
-                    zipName = "chromedriver_mac64.zip";
-                }
-                
+                zipName = "chromedriver_mac64.zip";
                 driverName = $"chromedriver_{version}";
                 tempPath = "Library/Application Support/UndetectedChromeDriver";
             }
