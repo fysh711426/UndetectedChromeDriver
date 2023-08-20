@@ -13,7 +13,7 @@ namespace SeleniumUndetectedChromeDriver
     // refer: https://swimburger.net/blog/dotnet/download-the-right-chromedriver-version-and-keep-it-up-to-date-on-windows-linux-macos-using-csharp-dotnet
     public class ChromeDriverInstaller
     {
-        public async Task<string> Auto(string browserExecutablePath = null, bool force = false)
+        public async Task<string> Auto(string? browserExecutablePath = null, bool force = false)
         {
             return await Install(await ChromeDriverInstaller.GetDynamicVersionAsync(), force);
         }
