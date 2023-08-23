@@ -143,14 +143,21 @@ namespace SeleniumUndetectedChromeDriver
             //----- Headless -----
             if (headless)
             {
-                var installer = new ChromeDriverInstaller();
-                var version = installer.GetDriverVersion(driverExecutablePath)
-                    .GetAwaiter().GetResult();
-                var versionMain = version.Substring(0, version.IndexOf('.'));
-                if (int.Parse(versionMain) < 108)
-                    options.AddArguments("--headless=chrome");
-                else
+                try
+                {
+                    var installer = new ChromeDriverInstaller();
+                    var version = installer.GetDriverVersion(driverExecutablePath)
+                        .GetAwaiter().GetResult();
+                    var versionMain = version.Substring(0, version.IndexOf('.'));
+                    if (int.Parse(versionMain) < 108)
+                        options.AddArguments("--headless=chrome");
+                    else
+                        options.AddArguments("--headless=new");
+                }
+                catch
+                {
                     options.AddArguments("--headless=new");
+                }
             }
             //----- Headless -----
 
