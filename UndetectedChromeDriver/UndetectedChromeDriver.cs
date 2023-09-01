@@ -86,7 +86,7 @@ namespace SeleniumUndetectedChromeDriver
             if (options.DebuggerAddress != null)
                 throw new Exception("Options is already used, please create new ChromeOptions.");
             var debugHost = "127.0.0.1";
-            var debugPort = findFreePort();
+            var debugPort = port !=0 ? port : findFreePort();
             options.AddArgument($"--remote-debugging-host={debugHost}");
             options.AddArgument($"--remote-debugging-port={debugPort}");
             options.DebuggerAddress = $"{debugHost}:{debugPort}";
