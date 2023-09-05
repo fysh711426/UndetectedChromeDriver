@@ -28,6 +28,7 @@ namespace SeleniumUndetectedChromeDriver
         private Process? _browser = null;
         private bool _keepUserDataDir = true;
         private string? _userDataDir = null;
+        public int browserPID = 0;
 
         /// <summary>
         /// Creates a new instance of the chrome driver.
@@ -229,6 +230,7 @@ namespace SeleniumUndetectedChromeDriver
                 driver._browser = browser;
                 driver._keepUserDataDir = keepUserDataDir;
                 driver._userDataDir = userDataDir;
+                driver.browserPID = browser.Id;
                 return driver;
             }
             catch
