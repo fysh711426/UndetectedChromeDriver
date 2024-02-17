@@ -116,7 +116,7 @@ namespace SeleniumUndetectedChromeDriver
                 }
             }
 
-            var baseUrl = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing";
+            var baseUrl = "https://storage.googleapis.com/chrome-for-testing-public";
 
             var zipResponse = await httpClient.GetAsync($"{baseUrl}/{driverVersion}/{platform}/{zipName}");
             if (!zipResponse.IsSuccessStatusCode)
