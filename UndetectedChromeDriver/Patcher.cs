@@ -69,7 +69,7 @@ namespace SeleniumUndetectedChromeDriver
                 if (match.Success)
                 {
                     var target = match.Value;
-                    var newTarget = "{console.log(\"undetected chromedriver 1337!\")}"
+                    var newTarget = "{\"undetected chromedriver 1337!\"}"
                         .PadRight(target.Length, ' ');
                     var newContent = content.Replace(target, newTarget);
 
