@@ -6,6 +6,12 @@ It optimizes Selenium chromedriver to avoid being detected by anti-bot services.
 
 ---  
 
+> [!NOTE]  
+> If you want to use CDP to directly control Chrome without using WebDriver and Selenium, you can try nodriver.  
+[https://github.com/fysh711426/NoDriver](https://github.com/fysh711426/NoDriver)  
+
+---  
+
 ### Nuget install  
 
 ```
