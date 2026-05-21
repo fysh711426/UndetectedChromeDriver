@@ -254,7 +254,7 @@ namespace SeleniumUndetectedChromeDriver
             {
                 ExecuteCdpCommand(
                     "Page.addScriptToEvaluateOnNewDocument",
-                    new Dictionary<string, object>
+                    new Dictionary<string, object?>
                     {
                         ["source"] =
                         @"
@@ -274,16 +274,16 @@ namespace SeleniumUndetectedChromeDriver
                     });
                 ExecuteCdpCommand(
                     "Network.setUserAgentOverride",
-                    new Dictionary<string, object>
+                    new Dictionary<string, object?>
                     {
                         ["userAgent"] =
-                        ((string)ExecuteScript(
+                        (ExecuteScript(
                             "return navigator.userAgent"
-                        )).Replace("Headless", "")
+                        ) as string)?.Replace("Headless", "")
                     });
                 ExecuteCdpCommand(
                     "Page.addScriptToEvaluateOnNewDocument",
-                    new Dictionary<string, object>
+                    new Dictionary<string, object?>
                     {
                         ["source"] =
                         @"
@@ -414,7 +414,7 @@ namespace SeleniumUndetectedChromeDriver
 
             try
             {
-                _service.Start();
+                await _service.StartAsync();
             }
             catch { }
 
